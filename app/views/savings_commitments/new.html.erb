@@ -1,0 +1,11 @@
+<% content_for :title, "New savings commitment" %>
+
+<h1>New savings commitment</h1>
+
+<%= render "form", savings_commitment: @savings_commitment %>
+
+<br>
+
+<div>
+  <%= link_to "Back to savings commitments", savings_commitments_path %>
+</div>

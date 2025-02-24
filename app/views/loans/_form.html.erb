@@ -1,0 +1,72 @@
+<%= form_with(model: loan) do |form| %>
+  <% if loan.errors.any? %>
+    <div style="color: red">
+      <h2><%= pluralize(loan.errors.count, "error") %> prohibited this loan from being saved:</h2>
+
+      <ul>
+        <% loan.errors.each do |error| %>
+          <li><%= error.full_message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+  <div class="form">
+<div>
+<%= form.label :Loan_type, style: "display: block" %>
+<%= form.text_field :interest_rate %>
+</div>
+
+  <div>
+    <%= form.label :client, style: "display: block" %>
+<%= form.collection_select :member_id, Member.all, :id, :name, prompt: "Select Member", class: "form-control" %>
+</div>
+<%= form.label :Membership_status, style: "display: block" %>
+<%= form.text_field :interest_rate %>
+</div>
+<div>
+<%= form.label :NIN, style: "display: block" %>
+<%= form.text_field :Identity %>
+</div>
+<div>
+<%= form.label :AccounNumber, style: "display: block" %>
+<%= form.text_field :AccounNumber %>
+</div>
+<div>
+<%= form.label :AccountDetails, style: "display: block" %>
+<%= form.text_field :interest_rate %>
+</div>
+<div>
+<%= form.label :amount, style: "display: block" %>
+<%= form.text_field :amount %>
+</div>
+<div>
+<%= form.label :interest_rate, style: "display: block" %>
+<%= form.text_field :interest_rate %>
+  </div>
+  <div>
+  <%= form.label :Payment_Period, style: "display: block" %>
+  <%= form.text_field :Payment_period %>
+  </div>
+  <div>
+<%= form.label :Monthly_installment_Payment, style: "display: block" %>
+<%= form.text_field :Monthly_installment_monthly %>
+</div>
+  <div>
+    <%= form.label :Total_amount_after_deduction, style: "display: block" %>
+    <%= form.text_field :Total_amount_after_duction %>
+  </div>
+
+  <div>
+  <%= form.label :Date_loan_taken, style: "display: block" %>
+  <%= form.text_field :Date_loan_taken %>
+</div>
+<div>
+<%= form.label :Date_loan_end, style: "display: block" %>
+<%= form.text_field :Date_loan_end %>
+</div>
+
+
+  <div>
+    <%= form.submit %>
+  </div>
+<% end %>

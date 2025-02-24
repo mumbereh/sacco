@@ -1,0 +1,38 @@
+<%= form_with(model: savings_commitment) do |form| %>
+  <% if savings_commitment.errors.any? %>
+    <div style="color: red">
+      <h2><%= pluralize(savings_commitment.errors.count, "error") %> prohibited this savings_commitment from being saved:</h2>
+
+      <ul>
+        <% savings_commitment.errors.each do |error| %>
+          <li><%= error.full_message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div>
+    <%= form.label :member_id, style: "display: block" %>
+<%= form.collection_select :member_id, Member.all, :id, :name, prompt: "Select Member", class: "form-control" %>
+</div>
+
+
+  <div>
+    <%= form.label :target_amount, style: "display: block" %>
+    <%= form.text_field :target_amount %>
+  </div>
+
+  <div>
+    <%= form.label :monthly_contribution, style: "display: block" %>
+    <%= form.text_field :monthly_contribution %>
+  </div>
+
+  <div>
+    <%= form.label :status, style: "display: block" %>
+    <%= form.text_field :status %>
+  </div>
+
+  <div>
+    <%= form.submit %>
+  </div>
+<% end %>

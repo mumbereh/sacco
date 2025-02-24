@@ -1,0 +1,16 @@
+<p style="color: green"><%= notice %></p>
+
+<% content_for :title, "Savings commitments" %>
+
+<h1>Savings commitments</h1>
+
+<div id="savings_commitments">
+  <% @savings_commitments.each do |savings_commitment| %>
+    <%= render savings_commitment %>
+    <p>
+      <%= link_to "Show this savings commitment", savings_commitment %>
+    </p>
+  <% end %>
+</div>
+
+<%= link_to "New savings commitment", new_savings_commitment_path %>

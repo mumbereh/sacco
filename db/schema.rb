@@ -10,8 +10,59 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 0) do
+ActiveRecord::Schema[7.2].define(version: 2025_02_20_152806) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
+  create_table "accounts", force: :cascade do |t|
+    t.bigint "member_id", null: false
+    t.string "account_type"
+    t.decimal "balance"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["member_id"], name: "index_accounts_on_member_id"
+  end
+
+  create_table "loans", force: :cascade do |t|
+    t.bigint "member_id", null: false
+    t.decimal "amount"
+    t.decimal "interest_rate"
+    t.string "status"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["member_id"], name: "index_loans_on_member_id"
+  end
+
+  create_table "members", force: :cascade do |t|
+    t.string "name"
+    t.string "email"
+    t.string "phone"
+    t.text "address"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "savings_commitments", force: :cascade do |t|
+    t.bigint "member_id", null: false
+    t.decimal "target_amount"
+    t.decimal "monthly_contribution"
+    t.string "status"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["member_id"], name: "index_savings_commitments_on_member_id"
+  end
+
+  create_table "transactions", force: :cascade do |t|
+    t.bigint "account_id", null: false
+    t.string "transaction_type"
+    t.decimal "amount"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["account_id"], name: "index_transactions_on_account_id"
+  end
+
+  add_foreign_key "accounts", "members"
+  add_foreign_key "loans", "members"
+  add_foreign_key "savings_commitments", "members"
+  add_foreign_key "transactions", "accounts"
 end
