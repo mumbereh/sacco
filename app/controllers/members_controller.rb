@@ -1,14 +1,16 @@
 class MembersController < ApplicationController
   before_action :set_member, only: %i[ show edit update destroy ]
 
-  # GET /members or /members.json
+  # GET /members
   def index
     @members = Member.all
   end
 
-  # GET /members/1 or /members/1.json
+  # GET /members/1
   def show
+    @member = Member.find(params[:id])
   end
+  
 
   # GET /members/new
   def new
@@ -19,7 +21,7 @@ class MembersController < ApplicationController
   def edit
   end
 
-  # POST /members or /members.json
+  # POST /members
   def create
     @member = Member.new(member_params)
 
@@ -34,7 +36,7 @@ class MembersController < ApplicationController
     end
   end
 
-  # PATCH/PUT /members/1 or /members/1.json
+  # PATCH/PUT /members/1
   def update
     respond_to do |format|
       if @member.update(member_params)
@@ -47,10 +49,9 @@ class MembersController < ApplicationController
     end
   end
 
-  # DELETE /members/1 or /members/1.json
+  # DELETE /members/1
   def destroy
     @member.destroy!
-
     respond_to do |format|
       format.html { redirect_to members_path, status: :see_other, notice: "Member was successfully destroyed." }
       format.json { head :no_content }
@@ -58,13 +59,18 @@ class MembersController < ApplicationController
   end
 
   private
-    # Use callbacks to share common setup or constraints between actions.
-    def set_member
-      @member = Member.find(params[:id])
-    end
 
-    # Only allow a list of trusted parameters through.
-    def member_params
-      params.require(:member).permit(:name, :email, :phone, :address)
-    end
+  def set_member
+    @member = Member.find(params[:id])
+  end
+
+  def member_params
+    params.require(:member).permit(
+      :membership_type, :surname, :given_name, :other_name, :date_of_birth, :gender, 
+      :marital_status, :physical_address, :phone, :identification_type, 
+      :id_number, :mother_name, :mother_nationality, :father_name, :father_nationality, 
+      :kin_surname, :kin_given_name, :kin_other_name, :kin_date_of_birth, :kin_gender, 
+      :kin_relationship, :kin_phone, :kin_address, :declaration_name, :signature, :declaration_date
+    )
+  end
 end

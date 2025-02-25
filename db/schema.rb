@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_02_20_152806) do
+ActiveRecord::Schema[7.2].define(version: 2025_02_25_222048) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -40,6 +40,31 @@ ActiveRecord::Schema[7.2].define(version: 2025_02_20_152806) do
     t.text "address"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "membership_type"
+    t.string "surname"
+    t.string "given_name"
+    t.string "other_name"
+    t.date "date_of_birth"
+    t.string "gender"
+    t.string "marital_status"
+    t.string "physical_address"
+    t.string "identification_type"
+    t.string "id_number"
+    t.string "mother_name"
+    t.string "mother_nationality"
+    t.string "father_name"
+    t.string "father_nationality"
+    t.string "kin_surname"
+    t.string "kin_given_name"
+    t.string "kin_other_name"
+    t.date "kin_date_of_birth"
+    t.string "kin_gender"
+    t.string "kin_relationship"
+    t.string "kin_phone"
+    t.string "kin_address"
+    t.string "declaration_name"
+    t.string "signature"
+    t.date "declaration_date"
   end
 
   create_table "savings_commitments", force: :cascade do |t|
