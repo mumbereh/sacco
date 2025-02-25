@@ -2,7 +2,6 @@
   <% if transaction.errors.any? %>
     <div style="color: red">
       <h2><%= pluralize(transaction.errors.count, "error") %> prohibited this transaction from being saved:</h2>
-
       <ul>
         <% transaction.errors.each do |error| %>
           <li><%= error.full_message %></li>
@@ -10,26 +9,30 @@
       </ul>
     </div>
   <% end %>
+
+  <h2 class="details">Transaction Details</h2>
+
   <div>
-   <%= form.label :member_id, style: "display: block" %>
-<%= form.collection_select :member_id, Member.all, :id, :name, prompt: "Select Member", class: "form-control" %>
-</div>
-  <div>
-    <%= form.label :account_id, style: "display: block" %>
-    <%= form.text_field :account_id %>
+    <%= form.label :member_id, "Select Member", style: "display: block" %>
+    <%= form.collection_select :member_id, Member.all, :id, :name, prompt: "Select Member", class: "form-control" %>
   </div>
 
   <div>
-    <%= form.label :transaction_type, style: "display: block" %>
-    <%= form.text_field :transaction_type %>
+    <%= form.label :account_id, "Account ID", style: "display: block" %>
+    <%= form.collection_select :account_id, Account.all, :id, :account_number, prompt: "Select Account", class: "form-control" %>
   </div>
 
   <div>
-    <%= form.label :amount, style: "display: block" %>
-    <%= form.text_field :amount %>
+    <%= form.label :transaction_type, "Transaction Type", style: "display: block" %>
+    <%= form.select :transaction_type, ["deposit", "withdraw", "transfer"], { prompt: "Select Transaction Type" }, class: "form-control" %>
   </div>
 
   <div>
-    <%= form.submit %>
+    <%= form.label :amount, "Amount", style: "display: block" %>
+    <%= form.number_field :amount, step: 0.01, class: "form-control" %>
+  </div>
+
+  <div>
+    <%= form.submit "Submit Transaction", class: "btn btn-primary" %>
   </div>
 <% end %>

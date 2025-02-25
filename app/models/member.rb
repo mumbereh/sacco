@@ -1,2 +1,18 @@
 class Member < ApplicationRecord
-end
+    validates :surname, :given_name, :date_of_birth, :phone, :id_number, presence: true
+  
+    validates :gender, inclusion: { in: %w[male female others] }
+    validates :nationality, inclusion: { in: %w[Uganda others] }
+    validates :membership_type, inclusion: { in: %w[Share Loan] }
+    validates :marital_status, inclusion: { in: %w[single married widow widowed others] }
+    validates :identification_type, inclusion: { in: ["National Id", "Driver’s License", "Passport"] }
+  
+    def full_name
+      [surname, given_name, other_name].compact.join(" ")
+    end
+  
+    def formatted_address
+      "#{physical_address}, #{phone}"
+    end
+  end
+  

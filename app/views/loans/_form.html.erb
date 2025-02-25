@@ -2,7 +2,6 @@
   <% if loan.errors.any? %>
     <div style="color: red">
       <h2><%= pluralize(loan.errors.count, "error") %> prohibited this loan from being saved:</h2>
-
       <ul>
         <% loan.errors.each do |error| %>
           <li><%= error.full_message %></li>
@@ -10,63 +9,83 @@
       </ul>
     </div>
   <% end %>
-  <div class="form">
-<div>
-<%= form.label :Loan_type, style: "display: block" %>
-<%= form.text_field :interest_rate %>
-</div>
+
+  <h2 class="details">Loan Application</h2>
 
   <div>
-    <%= form.label :client, style: "display: block" %>
-<%= form.collection_select :member_id, Member.all, :id, :name, prompt: "Select Member", class: "form-control" %>
-</div>
-<%= form.label :Membership_status, style: "display: block" %>
-<%= form.text_field :interest_rate %>
-</div>
-<div>
-<%= form.label :NIN, style: "display: block" %>
-<%= form.text_field :Identity %>
-</div>
-<div>
-<%= form.label :AccounNumber, style: "display: block" %>
-<%= form.text_field :AccounNumber %>
-</div>
-<div>
-<%= form.label :AccountDetails, style: "display: block" %>
-<%= form.text_field :interest_rate %>
-</div>
-<div>
-<%= form.label :amount, style: "display: block" %>
-<%= form.text_field :amount %>
-</div>
-<div>
-<%= form.label :interest_rate, style: "display: block" %>
-<%= form.text_field :interest_rate %>
-  </div>
-  <div>
-  <%= form.label :Payment_Period, style: "display: block" %>
-  <%= form.text_field :Payment_period %>
-  </div>
-  <div>
-<%= form.label :Monthly_installment_Payment, style: "display: block" %>
-<%= form.text_field :Monthly_installment_monthly %>
-</div>
-  <div>
-    <%= form.label :Total_amount_after_deduction, style: "display: block" %>
-    <%= form.text_field :Total_amount_after_duction %>
+    <%= form.label :client, "Select Member", style: "display: block" %>
+    <%= form.collection_select :member_id, Member.all, :id, :name, prompt: "Select Member", class: "form-control" %>
   </div>
 
   <div>
-  <%= form.label :Date_loan_taken, style: "display: block" %>
-  <%= form.text_field :Date_loan_taken %>
-</div>
-<div>
-<%= form.label :Date_loan_end, style: "display: block" %>
-<%= form.text_field :Date_loan_end %>
-</div>
-
+    <%= form.label :loan_type, "Loan Type", style: "display: block" %>
+    <%= form.select :loan_type, ["Business Loan", "School Loan", "Land/House purchase", "Salary Loan", "Emergency Loan", "Others"], { prompt: "Select Loan Type" }, class: "form-control" %>
+  </div>
 
   <div>
-    <%= form.submit %>
+    <%= form.label :nin, "NIN (National ID Number)", style: "display: block" %>
+    <%= form.text_field :nin, class: "form-control" %>
+  </div>
+
+  <div>
+    <%= form.label :account_number, "Account Number", style: "display: block" %>
+    <%= form.text_field :account_number, class: "form-control" %>
+  </div>
+
+  <div>
+    <%= form.label :amount, "Loan Amount", style: "display: block" %>
+    <%= form.number_field :amount, step: 0.01, class: "form-control" %>
+  </div>
+
+  <div>
+    <%= form.label :interest_rate, "Interest Rate (%)", style: "display: block" %>
+    <%= form.number_field :interest_rate, step: 0.01, class: "form-control" %>
+  </div>
+
+  <div>
+    <%= form.label :payment_period, "Payment Period (Months)", style: "display: block" %>
+    <%= form.number_field :payment_period, class: "form-control" %>
+  </div>
+
+  <div>
+    <%= form.label :monthly_installment_payment, "Monthly Installment Payment", style: "display: block" %>
+    <%= form.number_field :monthly_installment_payment, step: 0.01, class: "form-control" %>
+  </div>
+
+  <div>
+    <%= form.label :total_amount_after_deduction, "Total Amount After Deduction", style: "display: block" %>
+    <%= form.number_field :total_amount_after_deduction, step: 0.01, class: "form-control" %>
+  </div>
+
+  <div>
+    <%= form.label :date_loan_taken, "Date Loan Taken", style: "display: block" %>
+    <%= form.date_field :date_loan_taken, class: "form-control" %>
+  </div>
+
+  <div>
+    <%= form.label :date_loan_end, "Date Loan Ends", style: "display: block" %>
+    <%= form.date_field :date_loan_end, class: "form-control" %>
+  </div>
+
+  <h2 class="details">Guarantor Details</h2>
+  <h3>Guarantor 1</h3>
+
+  <div>
+    <%= form.label :guarantor1_name, "Guarantor's Name", style: "display: block" %>
+    <%= form.text_field :guarantor1_name, class: "form-control" %>
+  </div>
+
+  <div>
+    <%= form.label :guarantor1_nin, "Guarantor's NIN", style: "display: block" %>
+    <%= form.text_field :guarantor1_nin, class: "form-control" %>
+  </div>
+
+  <div>
+    <%= form.label :guarantor1_phone, "Guarantor's Phone", style: "display: block" %>
+    <%= form.text_field :guarantor1_phone, class: "form-control" %>
+  </div>
+
+  <div>
+    <%= form.submit "Apply for Loan", class: "btn btn-primary" %>
   </div>
 <% end %>
