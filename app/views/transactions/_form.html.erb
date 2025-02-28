@@ -14,9 +14,10 @@
   <h2 class="details">Transaction Details</h2>
 
   <div>
-    <%= form.label :member_id, "Member", style: "display: block" %>
-    <%= form.collection_select :member_id, Member.all, :id, :name, prompt: "Select Member", class: "form-control" %>
-  </div>
+  <%= form.label :member_id, "Member", style: "display: block" %>
+  <%= form.collection_select :member_id, Member.all, :id, :name, prompt: "Select Member", class: "form-control" %>
+</div>
+>
 
   <div>
     <%= form.label :account_id, "Account ID", style: "display: block" %>

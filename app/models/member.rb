@@ -1,6 +1,7 @@
 class Member < ApplicationRecord
   has_one_attached :passport_photo
   has_one_attached :id_document_photo
+  has_one :account, dependent: :destroy
 
   REQUIRED_FIELDS = %i[
     surname given_name date_of_birth phone id_number membership_type
@@ -23,10 +24,6 @@ class Member < ApplicationRecord
 
   def name
     "#{surname} #{given_name} #{other_name}".strip
-  end
-end
-  def formatted_address
-    "#{physical_address}, #{phone}"
   end
 
   private
@@ -57,3 +54,4 @@ end
       errors.add(name, "must be a PNG, JPG, or JPEG file")
     end
   end
+end

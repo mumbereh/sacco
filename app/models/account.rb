@@ -1,5 +1,6 @@
 class Account < ApplicationRecord
   belongs_to :member
+  has_many :deposits, dependent: :destroy
 
   REQUIRED_FIELDS = %i[account_type principal_amount deposit account_number balance].freeze
 
@@ -7,6 +8,8 @@ class Account < ApplicationRecord
   validates :principal_amount, numericality: { equal_to: 20_000, message: "must be exactly 20,000/=" }
   validates :deposit, numericality: { greater_than_or_equal_to: 0, message: "must be a positive amount" }
   validates :account_number, presence: true, uniqueness: true
+  validates :member_id, uniqueness: { message: "Each member can have only one account" }
+  
   validate :validate_deposit_against_principal
 
   before_validation :generate_account_number, on: :create
@@ -15,7 +18,7 @@ class Account < ApplicationRecord
   private
 
   def generate_account_number
-    self.account_number ||= "KUDGS" + rand(100_000..999_999).to_s
+    self.account_number ||= "KUDGS-" + rand(100_000..999_999).to_s
   end
 
   def validate_deposit_against_principal

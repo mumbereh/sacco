@@ -22,10 +22,8 @@
         <td><%= account.account_type %></td>
         <td><%= number_to_currency(account.balance, unit: "UGX ") %></td>
         <td>
-          <%= link_to "Show", account_path(account), class: "btn btn-info" %>
-          <%= link_to "Edit", edit_account_path(account), class: "btn btn-warning" %>
-          <%= button_to "Delete", account, method: :delete, data: { confirm: "Are you sure?" }, class: "btn btn-danger" %>
-        </td>
+          <%= link_to "view_details", account_path(account), class: "btn btn-info" %>
+          <%= link_to "Update", edit_account_path(account), class: "btn btn-warning" %>
       </tr>
     <% end %>
   </tbody>

@@ -22,22 +22,29 @@ class Transaction < ApplicationRecord
     when "withdraw"
       account.decrement!(:balance, amount)
     when "transfer"
-      ActiveRecord::Base.transaction do
-        account.decrement!(:balance, amount)
-        recipient_account.increment!(:balance, amount)
+      if recipient_account.present?
+        ActiveRecord::Base.transaction do
+          account.decrement!(:balance, amount)
+          recipient_account.increment!(:balance, amount)
+        end
+      else
+        errors.add(:recipient_account, "Transfer must have a recipient account")
+        raise ActiveRecord::Rollback
       end
     end
   end
-
   def sufficient_funds_for_withdrawal
     errors.add(:amount, "Insufficient funds") if account.balance < amount
   end
 
   def valid_recipient_for_transfer
+    return unless transaction_type == "transfer"
+  
     if recipient_account.nil?
       errors.add(:recipient_account, "Recipient account must be specified for transfers")
     elsif recipient_account == account
       errors.add(:recipient_account, "Cannot transfer to the same account")
     end
   end
-end
+  end
+

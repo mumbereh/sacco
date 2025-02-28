@@ -1,170 +1,165 @@
-<%= form_with(model: member, local: true, html: { multipart: true }) do |form| %>
-
-  <% if member.errors.any? %>
+<%= form_with(model: @member, local: true, html: { multipart: true }) do |form| %>
+  <% if @member.errors.any? %>
     <div style="color: red">
-      <h2><%= pluralize(member.errors.count, "error") %> prohibited this member from being saved:</h2>
+      <h2><%= pluralize(@member.errors.count, "error") %> prohibited this member from being saved:</h2>
       <ul>
-        <% member.errors.full_messages.each do |message| %>
+        <% @member.errors.full_messages.each do |message| %>
           <li><%= message %></li>
         <% end %>
       </ul>
     </div>
   <% end %>
 
-  <h2 class="details">Personal Details</h2>
-
-  <div>
-    <%= form.label :membership_type, "Membership Type" %>
-    <%= form.select :membership_type, [["Share", "Share"], ["Loan", "Loan"]] %>
-  </div>
-
   <div>
     <%= form.label :surname, "Surname" %>
-    <%= form.text_field :surname %>
+    <%= form.text_field :surname, class: "form-control", required: true %>
   </div>
 
   <div>
     <%= form.label :given_name, "Given Name" %>
-    <%= form.text_field :given_name %>
+    <%= form.text_field :given_name, class: "form-control", required: true %>
   </div>
 
   <div>
     <%= form.label :other_name, "Other Name" %>
-    <%= form.text_field :other_name %>
+    <%= form.text_field :other_name, class: "form-control" %>
   </div>
 
   <div>
     <%= form.label :date_of_birth, "Date of Birth" %>
-    <%= form.date_field :date_of_birth %>
+    <%= form.date_field :date_of_birth, class: "form-control", required: true %>
   </div>
 
   <div>
     <%= form.label :gender, "Gender" %>
-    <%= form.select :gender, [["Male", "male"], ["Female", "female"], ["Others", "others"]] %>
+    <%= form.select :gender, ["male", "female", "others"], { prompt: "Select Gender" }, class: "form-control", required: true %>
   </div>
 
   <div>
     <%= form.label :marital_status, "Marital Status" %>
-    <%= form.select :marital_status, [["Single", "single"], ["Married", "married"], ["Widow", "widow"], ["Widowed", "widowed"], ["Others", "others"]] %>
-  </div>
-
-  <div>
-    <%= form.label :physical_address, "Physical Address" %>
-    <%= form.text_field :physical_address %>
+    <%= form.select :marital_status, ["single", "married", "widow", "widowed", "others"], { prompt: "Select Marital Status" }, class: "form-control", required: true %>
   </div>
 
   <div>
     <%= form.label :phone, "Phone Number" %>
-    <%= form.text_field :phone %>
+    <%= form.text_field :phone, class: "form-control", required: true %>
   </div>
 
   <div>
-    <%= form.label :passport_photo, "Passport Photo (Required)" %>
-    <%= form.file_field :passport_photo %>
+    <%= form.label :physical_address, "Physical Address" %>
+    <%= form.text_area :physical_address, class: "form-control", required: true %>
   </div>
 
-  <h2 class="details">Identification Details</h2>
+  <div>
+    <%= form.label :membership_type, "Membership Type" %>
+    <%= form.select :membership_type, ["Share", "Loan"], { prompt: "Select Membership Type" }, class: "form-control", required: true %>
+  </div>
 
   <div>
     <%= form.label :identification_type, "Identification Type" %>
-    <%= form.select :identification_type, [["National Id", "National Id"], ["Driver’s License", "Driver’s License"], ["Passport", "Passport"]] %>
+    <%= form.select :identification_type, ["National Id", "Driver’s License", "Passport"], { prompt: "Select ID Type" }, class: "form-control", required: true %>
   </div>
 
   <div>
-    <%= form.label :id_number, "ID Number or NIN" %>
-    <%= form.text_field :id_number %>
+    <%= form.label :id_number, "ID Number" %>
+    <%= form.text_field :id_number, class: "form-control", required: true %>
   </div>
 
   <div>
-    <%= form.label :id_document_photo, "Upload Selected ID Document (Required)" %>
-    <%= form.file_field :id_document_photo %>
+    <%= form.label :passport_photo, "Passport Photo (JPEG, PNG, max 5MB)" %>
+    <%= form.file_field :passport_photo, class: "form-control", accept: "image/png,image/jpg,image/jpeg" %>
+    <% if @member.persisted? && @member.passport_photo.attached? %>
+      <p>Current photo:</p>
+      <%= image_tag @member.passport_photo, width: 100 %>
+    <% end %>
   </div>
 
-  <h2 class="details">Parents Details</h2>
+  <div>
+    <%= form.label :id_document_photo, "ID Document (JPEG, PNG, max 5MB)" %>
+    <%= form.file_field :id_document_photo, class: "form-control", accept: "image/png,image/jpg,image/jpeg" %>
+    <% if @member.persisted? && @member.id_document_photo.attached? %>
+      <p>Current ID document:</p>
+      <%= image_tag @member.id_document_photo, width: 100 %>
+    <% end %>
+  </div>
+
+  <h3>Parents Information</h3>
 
   <div>
     <%= form.label :mother_name, "Mother's Name" %>
-    <%= form.text_field :mother_name %>
+    <%= form.text_field :mother_name, class: "form-control", required: true %>
   </div>
 
   <div>
     <%= form.label :mother_nationality, "Mother's Nationality" %>
-    <%= form.select :mother_nationality, [["Uganda", "Uganda"], ["Others", "Others"]] %>
+    <%= form.select :mother_nationality, ["Uganda", "Others"], { prompt: "Select Nationality" }, class: "form-control", required: true %>
   </div>
 
   <div>
     <%= form.label :father_name, "Father's Name" %>
-    <%= form.text_field :father_name %>
+    <%= form.text_field :father_name, class: "form-control", required: true %>
   </div>
 
   <div>
     <%= form.label :father_nationality, "Father's Nationality" %>
-    <%= form.select :father_nationality, [["Uganda", "Uganda"], ["Others", "Others"]] %>
+    <%= form.select :father_nationality, ["Uganda", "Others"], { prompt: "Select Nationality" }, class: "form-control", required: true %>
   </div>
 
-  <h2 class="details">Next of Kin Details</h2>
+  <h3>Next of Kin Information</h3>
 
   <div>
-    <%= form.label :kin_surname, "Next of Kin Surname" %>
-    <%= form.text_field :kin_surname %>
-  </div>
-
-  <div>
-    <%= form.label :kin_given_name, "Next of Kin Given Name" %>
-    <%= form.text_field :kin_given_name %>
+    <%= form.label :kin_surname, "Kin's Surname" %>
+    <%= form.text_field :kin_surname, class: "form-control", required: true %>
   </div>
 
   <div>
-    <%= form.label :kin_other_name, "Next of Kin Other Name" %>
-    <%= form.text_field :kin_other_name %>
+    <%= form.label :kin_given_name, "Kin's Given Name" %>
+    <%= form.text_field :kin_given_name, class: "form-control", required: true %>
   </div>
 
   <div>
-    <%= form.label :kin_date_of_birth, "Next of Kin Date of Birth" %>
-    <%= form.date_field :kin_date_of_birth %>
+    <%= form.label :kin_date_of_birth, "Kin's Date of Birth" %>
+    <%= form.date_field :kin_date_of_birth, class: "form-control", required: true %>
   </div>
 
   <div>
-    <%= form.label :kin_gender, "Next of Kin Gender" %>
-    <%= form.select :kin_gender, [["Male", "male"], ["Female", "female"], ["Others", "others"]] %>
+    <%= form.label :kin_gender, "Kin's Gender" %>
+    <%= form.select :kin_gender, ["male", "female", "others"], { prompt: "Select Gender" }, class: "form-control", required: true %>
   </div>
 
   <div>
-    <%= form.label :kin_relationship, "Relationship to Member" %>
-    <%= form.text_field :kin_relationship %>
+    <%= form.label :kin_relationship, "Kin's Relationship" %>
+    <%= form.text_field :kin_relationship, class: "form-control", required: true %>
   </div>
 
   <div>
-    <%= form.label :kin_phone, "Next of Kin Phone" %>
-    <%= form.text_field :kin_phone %>
+    <%= form.label :kin_phone, "Kin's Phone Number" %>
+    <%= form.text_field :kin_phone, class: "form-control", required: true %>
   </div>
 
   <div>
-    <%= form.label :kin_address, "Next of Kin Address" %>
-    <%= form.text_field :kin_address %>
+    <%= form.label :kin_address, "Kin's Address" %>
+    <%= form.text_area :kin_address, class: "form-control", required: true %>
   </div>
 
-  <h2 class="details">Declaration</h2>
-
-  <p>I hereby declare that the information provided is true and correct to the best of my knowledge.</p>
+  <h3>Declaration</h3>
 
   <div>
-    <%= form.label :declaration_name, "Name" %>
-    <%= form.text_field :declaration_name %>
+    <%= form.label :declaration_name, "Your Name" %>
+    <%= form.text_field :declaration_name, class: "form-control", required: true %>
   </div>
 
   <div>
-    <%= form.label :signature, "Signature" %>
-    <%= form.text_field :signature %>
+    <%= form.label :signature, "Your Signature" %>
+    <%= form.text_field :signature, class: "form-control", required: true %>
   </div>
 
   <div>
     <%= form.label :declaration_date, "Date" %>
-    <%= form.date_field :declaration_date %>
+    <%= form.date_field :declaration_date, class: "form-control", required: true %>
   </div>
 
   <div>
-    <%= form.submit "Submit Membership Form" %>
+    <%= form.submit @member.new_record? ? "Create Member" : "Update Member", class: "btn btn-primary" %>
   </div>
-
 <% end %>
