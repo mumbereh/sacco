@@ -10,17 +10,49 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_02_25_222048) do
+ActiveRecord::Schema[7.2].define(version: 2025_02_28_083021) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
   create_table "accounts", force: :cascade do |t|
     t.bigint "member_id", null: false
     t.string "account_type"
-    t.decimal "balance"
+    t.decimal "principal_amount"
+    t.decimal "deposit"
+    t.string "account_number"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.decimal "balance"
+    t.index ["account_number"], name: "index_accounts_on_account_number", unique: true
     t.index ["member_id"], name: "index_accounts_on_member_id"
+  end
+
+  create_table "active_storage_attachments", force: :cascade do |t|
+    t.string "name", null: false
+    t.string "record_type", null: false
+    t.bigint "record_id", null: false
+    t.bigint "blob_id", null: false
+    t.datetime "created_at", null: false
+    t.index ["blob_id"], name: "index_active_storage_attachments_on_blob_id"
+    t.index ["record_type", "record_id", "name", "blob_id"], name: "index_active_storage_attachments_uniqueness", unique: true
+  end
+
+  create_table "active_storage_blobs", force: :cascade do |t|
+    t.string "key", null: false
+    t.string "filename", null: false
+    t.string "content_type"
+    t.text "metadata"
+    t.string "service_name", null: false
+    t.bigint "byte_size", null: false
+    t.string "checksum"
+    t.datetime "created_at", null: false
+    t.index ["key"], name: "index_active_storage_blobs_on_key", unique: true
+  end
+
+  create_table "active_storage_variant_records", force: :cascade do |t|
+    t.bigint "blob_id", null: false
+    t.string "variation_digest", null: false
+    t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
   end
 
   create_table "loans", force: :cascade do |t|
@@ -28,18 +60,13 @@ ActiveRecord::Schema[7.2].define(version: 2025_02_25_222048) do
     t.decimal "amount"
     t.decimal "interest_rate"
     t.string "status"
+    t.string "loan_type"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["member_id"], name: "index_loans_on_member_id"
   end
 
   create_table "members", force: :cascade do |t|
-    t.string "name"
-    t.string "email"
-    t.string "phone"
-    t.text "address"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
     t.string "membership_type"
     t.string "surname"
     t.string "given_name"
@@ -48,6 +75,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_02_25_222048) do
     t.string "gender"
     t.string "marital_status"
     t.string "physical_address"
+    t.string "phone"
     t.string "identification_type"
     t.string "id_number"
     t.string "mother_name"
@@ -65,12 +93,14 @@ ActiveRecord::Schema[7.2].define(version: 2025_02_25_222048) do
     t.string "declaration_name"
     t.string "signature"
     t.date "declaration_date"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "savings_commitments", force: :cascade do |t|
     t.bigint "member_id", null: false
     t.decimal "target_amount"
-    t.decimal "monthly_contribution"
+    t.decimal "total_contributed"
     t.string "status"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
@@ -79,15 +109,23 @@ ActiveRecord::Schema[7.2].define(version: 2025_02_25_222048) do
 
   create_table "transactions", force: :cascade do |t|
     t.bigint "account_id", null: false
+    t.bigint "member_id", null: false
+    t.bigint "recipient_account_id"
     t.string "transaction_type"
     t.decimal "amount"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["account_id"], name: "index_transactions_on_account_id"
+    t.index ["member_id"], name: "index_transactions_on_member_id"
+    t.index ["recipient_account_id"], name: "index_transactions_on_recipient_account_id"
   end
 
   add_foreign_key "accounts", "members"
+  add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "loans", "members"
   add_foreign_key "savings_commitments", "members"
   add_foreign_key "transactions", "accounts"
+  add_foreign_key "transactions", "accounts", column: "recipient_account_id"
+  add_foreign_key "transactions", "members"
 end

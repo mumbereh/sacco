@@ -1,3 +1,4 @@
+# Updated form to include recipient account field for transfers
 <%= form_with(model: transaction) do |form| %>
   <% if transaction.errors.any? %>
     <div style="color: red">
@@ -13,7 +14,7 @@
   <h2 class="details">Transaction Details</h2>
 
   <div>
-    <%= form.label :member_id, "Select Member", style: "display: block" %>
+    <%= form.label :member_id, "Member", style: "display: block" %>
     <%= form.collection_select :member_id, Member.all, :id, :name, prompt: "Select Member", class: "form-control" %>
   </div>
 
@@ -24,7 +25,12 @@
 
   <div>
     <%= form.label :transaction_type, "Transaction Type", style: "display: block" %>
-    <%= form.select :transaction_type, ["deposit", "withdraw", "transfer"], { prompt: "Select Transaction Type" }, class: "form-control" %>
+    <%= form.select :transaction_type, ["deposit", "withdraw", "transfer"], { prompt: "Select Transaction Type" }, class: "form-control", id: "transaction_type" %>
+  </div>
+
+  <div id="recipient_account_field" style="display: none;">
+    <%= form.label :recipient_account_id, "Recipient Account", style: "display: block" %>
+    <%= form.collection_select :recipient_account_id, Account.all, :id, :account_number, prompt: "Select Recipient Account", class: "form-control" %>
   </div>
 
   <div>
@@ -36,3 +42,18 @@
     <%= form.submit "Submit Transaction", class: "btn btn-primary" %>
   </div>
 <% end %>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    var transactionType = document.getElementById("transaction_type");
+    var recipientField = document.getElementById("recipient_account_field");
+    
+    transactionType.addEventListener("change", function() {
+      if (this.value === "transfer") {
+        recipientField.style.display = "block";
+      } else {
+        recipientField.style.display = "none";
+      }
+    });
+  });
+</script>

@@ -1,16 +1,40 @@
-<p style="color: green"><%= notice %></p>
+<h1>Transaction List</h1>
 
-<% content_for :title, "Transactions" %>
+<%= link_to "New Transaction", new_transaction_path, class: "btn btn-primary" %>
 
-<h1>Transactions</h1>
-
-<div id="transactions">
-  <% @transactions.each do |transaction| %>
-    <%= render transaction %>
-    <p>
-      <%= link_to "Show this transaction", transaction %>
-    </p>
-  <% end %>
-</div>
-
-<%= link_to "New transaction", new_transaction_path %>
+<table class="table table-striped">
+  <thead>
+    <tr>
+      <th>Member</th>
+      <th>Account ID</th>
+      <th>Transaction Type</th>
+      <th>Recipient Account</th>
+      <th>Amount</th>
+      <th>Created At</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @transactions.each do |transaction| %>
+      <tr>
+        <td><%= transaction.member.name %></td>
+        <td><%= transaction.account.account_number %></td>
+        <td><%= transaction.transaction_type.capitalize %></td>
+        <td>
+          <% if transaction.transaction_type == "transfer" %>
+            <%= transaction.recipient_account.account_number %>
+          <% else %>
+            N/A
+          <% end %>
+        </td>
+        <td><%= number_to_currency(transaction.amount) %></td>
+        <td><%= transaction.created_at.strftime("%B %d, %Y %H:%M") %></td>
+        <td>
+          <%= link_to 'Show', transaction_path(transaction), class: "btn btn-info btn-sm" %>
+          <%= link_to 'Edit', edit_transaction_path(transaction), class: "btn btn-warning btn-sm" %>
+          <%= link_to 'Destroy', transaction_path(transaction), method: :delete, data: { confirm: "Are you sure?" }, class: "btn btn-danger btn-sm" %>
+        </td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>

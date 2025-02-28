@@ -1,8 +1,12 @@
 class SavingsCommitment < ApplicationRecord
   belongs_to :member
 
+  REQUIRED_FIELDS = %i[target_amount total_contributed].freeze
+
+  validates *REQUIRED_FIELDS, numericality: { greater_than_or_equal_to: 0, message: "must be a positive amount" }
+
   def progress
-    (total_contributed / target_amount) * 100
+    (total_contributed.to_f / target_amount) * 100
   end
 
   def contribute(amount)

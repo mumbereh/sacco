@@ -1,10 +1,12 @@
 class Loan < ApplicationRecord
   belongs_to :member
 
-  validates :amount, numericality: { greater_than: 0 }
-  validates :interest_rate, numericality: { greater_than: 0 }
-  validates :status, inclusion: { in: %w[pending approved rejected repaid] }
-  validates :loan_type, inclusion: { in: ["Business Loan", "School Loan", "Land/House purchase", "Salary Loan", "Emergency Loan", "Others"] }
+  REQUIRED_FIELDS = %i[amount interest_rate status loan_type].freeze
+
+  validates :amount, numericality: { greater_than: 0, message: "must be greater than zero" }
+  validates :interest_rate, numericality: { greater_than: 0, message: "must be a positive value" }
+  validates :status, inclusion: { in: %w[pending approved rejected repaid], message: "must be a valid loan status" }
+  validates :loan_type, inclusion: { in: ["Business Loan", "School Loan", "Land/House Purchase", "Salary Loan", "Emergency Loan", "Others"], message: "must be a valid loan type" }
 
   def approve!
     update(status: "approved")

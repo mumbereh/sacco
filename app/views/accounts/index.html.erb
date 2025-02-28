@@ -1,16 +1,34 @@
-<p style="color: green"><%= notice %></p>
-
 <% content_for :title, "Accounts" %>
 
-<h1>Accounts</h1>
+<h1>All Accounts</h1>
 
-<div id="accounts">
-  <% @accounts.each do |account| %>
-    <%= render account %>
-    <p>
-      <%= link_to "Show this account", account %>
-    </p>
-  <% end %>
-</div>
+<table class="styled-table">
+  <thead>
+    <tr>
+      <th>Account Number</th>
+      <th>Member Name</th>
+      <th>Membership Type</th>
+      <th>Account Type</th>
+      <th>Balance</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @accounts.each do |account| %>
+      <tr>
+        <td><%= account.account_number %></td>
+        <td><%= account.member.name %></td>
+        <td><%= account.member.membership_type %></td>
+        <td><%= account.account_type %></td>
+        <td><%= number_to_currency(account.balance, unit: "UGX ") %></td>
+        <td>
+          <%= link_to "Show", account_path(account), class: "btn btn-info" %>
+          <%= link_to "Edit", edit_account_path(account), class: "btn btn-warning" %>
+          <%= button_to "Delete", account, method: :delete, data: { confirm: "Are you sure?" }, class: "btn btn-danger" %>
+        </td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
 
-<%= link_to "New account", new_account_path %>
+<%= link_to "New Account", new_account_path, class: "btn btn-primary" %>
