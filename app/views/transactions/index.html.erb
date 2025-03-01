@@ -1,7 +1,5 @@
 <h1>Transaction List</h1>
 
-<%= link_to "New Transaction", new_transaction_path, class: "btn btn-primary" %>
-
 <table class="styled-table">
   <thead>
     <tr>
@@ -30,11 +28,10 @@
         <td><%= number_to_currency(transaction.amount) %></td>
         <td><%= transaction.created_at.strftime("%B %d, %Y %H:%M") %></td>
         <td>
-          <%= link_to 'Show', transaction_path(transaction), class: "btn btn-info btn-sm" %>
-          <%= link_to 'Edit', edit_transaction_path(transaction), class: "btn btn-warning btn-sm" %>
-          <%= link_to 'Destroy', transaction_path(transaction), method: :delete, data: { confirm: "Are you sure?" }, class: "btn btn-danger btn-sm" %>
-        </td>
+          <%= link_to 'Details', transaction_path(transaction), class: "btn btn-info btn-sm" %>
+          <%= link_to 'update', edit_transaction_path(transaction), class: "btn btn-warning btn-sm" %>
       </tr>
     <% end %>
   </tbody>
 </table>
+<%= link_to "New Transaction", new_transaction_path, class: "btn btn-primary" %>

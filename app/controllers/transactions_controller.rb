@@ -67,4 +67,4 @@ class TransactionsController < ApplicationController
     def transaction_params
       params.require(:transaction).permit(:member_id, :account_id, :transaction_type, :amount, :recipient_account_id)
     end
-  end    
+  end
