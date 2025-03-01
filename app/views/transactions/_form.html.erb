@@ -14,12 +14,12 @@
 
   <div>
     <%= form.label :member_id, "Member", style: "display: block" %>
-    <%= form.collection_select :member_id, Member.all, :id, :name, prompt: "Select Member", class: "form-control" %>
+    <%= form.collection_select :member_id, Member.all, :id, :name, { prompt: "Select Member" }, class: "form-control", id: "member_select" %>
   </div>
 
   <div>
     <%= form.label :account_id, "Account ID", style: "display: block" %>
-    <%= form.collection_select :account_id, Account.all, :id, :account_number, prompt: "Select Account", class: "form-control" %>
+    <%= form.select :account_id, [], { prompt: "Select Member First" }, class: "form-control", id: "account_select", disabled: true %>
   </div>
 
   <div>
@@ -29,7 +29,7 @@
 
   <div id="recipient_account_field" style="display: none;">
     <%= form.label :recipient_account_id, "Recipient Account", style: "display: block" %>
-    <%= form.collection_select :recipient_account_id, Account.all, :id, :account_number, prompt: "Select Recipient Account", class: "form-control" %>
+    <%= form.collection_select :recipient_account_id, [], :id, :account_number, { prompt: "Select Recipient Account" }, class: "form-control", id: "recipient_account_select" %>
   </div>
 
   <div>
@@ -43,15 +43,68 @@
 <% end %>
 
 <script>
-  document.addEventListener("DOMContentLoaded", function() {
+  document.addEventListener("DOMContentLoaded", function () {
     var transactionType = document.getElementById("transaction_type");
     var recipientField = document.getElementById("recipient_account_field");
-    
-    transactionType.addEventListener("change", function() {
+    var memberSelect = document.getElementById("member_select");
+    var accountSelect = document.getElementById("account_select");
+    var recipientSelect = document.getElementById("recipient_account_select");
+
+    transactionType.addEventListener("change", function () {
       if (this.value === "transfer") {
         recipientField.style.display = "block";
       } else {
         recipientField.style.display = "none";
+      }
+    });
+
+    memberSelect.addEventListener("change", function () {
+      var memberId = this.value;
+      if (memberId) {
+        fetch(`/members/${memberId}/account`)
+          .then(response => response.json())
+          .then(data => {
+            accountSelect.innerHTML = "";
+            if (data.account_number) {
+              var option = new Option(data.account_number, data.account_id);
+              accountSelect.appendChild(option);
+              accountSelect.disabled = false;
+            } else {
+              var defaultOption = new Option("No account found", "");
+              accountSelect.appendChild(defaultOption);
+              accountSelect.disabled = true;
+            }
+          })
+          .catch(error => console.error("Error fetching account details:", error));
+      } else {
+        accountSelect.innerHTML = "<option>Select Member First</option>";
+        accountSelect.disabled = true;
+      }
+    });
+
+    function updateRecipientList() {
+      var selectedAccountId = accountSelect.value;
+      if (!selectedAccountId) return;
+
+      fetch(`/accounts`)
+        .then(response => response.json())
+        .then(data => {
+          recipientSelect.innerHTML = "<option>Select Recipient Account</option>";
+          data.forEach(function (account) {
+            if (account.id !== parseInt(selectedAccountId)) {
+              var option = new Option(account.account_number, account.id);
+              recipientSelect.appendChild(option);
+            }
+          });
+
+          recipientSelect.disabled = recipientSelect.options.length === 1;
+        })
+        .catch(error => console.error("Error fetching recipient accounts:", error));
+    }
+
+    accountSelect.addEventListener("change", function () {
+      if (transactionType.value === "transfer") {
+        updateRecipientList();
       }
     });
   });

@@ -8,6 +8,7 @@
       <th>Transaction Type</th>
       <th>Recipient Account</th>
       <th>Amount</th>
+      <th>Balance</th>
       <th>Created At</th>
       <th>Actions</th>
     </tr>
@@ -26,6 +27,7 @@
           <% end %>
         </td>
         <td><%= number_to_currency(transaction.amount) %></td>
+        <td><%= number_to_currency(transaction.account.balance, unit: "UGX ") %></td>
         <td><%= transaction.created_at.strftime("%B %d, %Y %H:%M") %></td>
         <td>
           <%= link_to 'Details', transaction_path(transaction), class: "btn btn-info btn-sm" %>

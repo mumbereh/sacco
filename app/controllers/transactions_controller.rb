@@ -22,18 +22,18 @@ class TransactionsController < ApplicationController
   # POST /transactions or /transactions.json
   def create
     @transaction = Transaction.new(transaction_params)
-
-    respond_to do |format|
-      if @transaction.save
-        format.html { redirect_to @transaction, notice: "Transaction was successfully created." }
-        format.json { render :show, status: :created, location: @transaction }
-      else
-        format.html { render :new, status: :unprocessable_entity }
-        format.json { render json: @transaction.errors, status: :unprocessable_entity }
-      end
+  
+    unless @transaction.account_id.present?
+      account = Account.find_by(member_id: @transaction.member_id)
+      @transaction.account = account if account
+    end
+  
+    if @transaction.save
+      redirect_to transactions_path, notice: "Transaction successfully created."
+    else
+      render :new, status: :unprocessable_entity
     end
   end
-
   # PATCH/PUT /transactions/1 or /transactions/1.json
   def update
     respond_to do |format|
