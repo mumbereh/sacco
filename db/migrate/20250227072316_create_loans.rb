@@ -6,6 +6,7 @@ class CreateLoans < ActiveRecord::Migration[7.2]
       t.decimal :interest_rate
       t.string :status
       t.string :loan_type
+      t.decimal :monthly_installment_payment
 
       t.timestamps
     end

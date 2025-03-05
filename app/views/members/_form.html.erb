@@ -10,6 +10,7 @@
     </div>
   <% end %>
 
+  <!-- Personal Information -->
   <div>
     <%= form.label :surname, "Surname" %>
     <%= form.text_field :surname, class: "form-control", required: true %>
@@ -51,6 +52,11 @@
   </div>
 
   <div>
+    <%= form.label :email, "Email Address" %>
+    <%= form.email_field :email, class: "form-control", required: true %>
+  </div>
+
+  <div>
     <%= form.label :membership_type, "Membership Type" %>
     <%= form.select :membership_type, ["Share", "Loan"], { prompt: "Select Membership Type" }, class: "form-control", required: true %>
   </div>
@@ -65,6 +71,7 @@
     <%= form.text_field :id_number, class: "form-control", required: true %>
   </div>
 
+  <!-- File Attachments -->
   <div>
     <%= form.label :passport_photo, "Passport Photo (JPEG, PNG, max 5MB)" %>
     <%= form.file_field :passport_photo, class: "form-control", accept: "image/png,image/jpg,image/jpeg" %>
@@ -83,77 +90,70 @@
     <% end %>
   </div>
 
+  <!-- Parents Information -->
   <h3>Parents Information</h3>
-
   <div>
     <%= form.label :mother_name, "Mother's Name" %>
     <%= form.text_field :mother_name, class: "form-control", required: true %>
   </div>
-
   <div>
     <%= form.label :mother_nationality, "Mother's Nationality" %>
     <%= form.select :mother_nationality, ["Uganda", "Others"], { prompt: "Select Nationality" }, class: "form-control", required: true %>
   </div>
-
   <div>
     <%= form.label :father_name, "Father's Name" %>
     <%= form.text_field :father_name, class: "form-control", required: true %>
   </div>
-
   <div>
     <%= form.label :father_nationality, "Father's Nationality" %>
     <%= form.select :father_nationality, ["Uganda", "Others"], { prompt: "Select Nationality" }, class: "form-control", required: true %>
   </div>
 
+  <!-- Next of Kin Information -->
   <h3>Next of Kin Information</h3>
-
   <div>
     <%= form.label :kin_surname, "Kin's Surname" %>
     <%= form.text_field :kin_surname, class: "form-control", required: true %>
   </div>
-
   <div>
     <%= form.label :kin_given_name, "Kin's Given Name" %>
     <%= form.text_field :kin_given_name, class: "form-control", required: true %>
   </div>
-
+  <div>
+    <%= form.label :kin_other_name, "Kin's Other Name" %>
+    <%= form.text_field :kin_other_name, class: "form-control", required: true %>
+  </div>
   <div>
     <%= form.label :kin_date_of_birth, "Kin's Date of Birth" %>
     <%= form.date_field :kin_date_of_birth, class: "form-control", required: true %>
   </div>
-
   <div>
     <%= form.label :kin_gender, "Kin's Gender" %>
     <%= form.select :kin_gender, ["male", "female", "others"], { prompt: "Select Gender" }, class: "form-control", required: true %>
   </div>
-
   <div>
     <%= form.label :kin_relationship, "Kin's Relationship" %>
     <%= form.text_field :kin_relationship, class: "form-control", required: true %>
   </div>
-
   <div>
     <%= form.label :kin_phone, "Kin's Phone Number" %>
     <%= form.text_field :kin_phone, class: "form-control", required: true %>
   </div>
-
   <div>
     <%= form.label :kin_address, "Kin's Address" %>
     <%= form.text_area :kin_address, class: "form-control", required: true %>
   </div>
 
+  <!-- Declaration -->
   <h3>Declaration</h3>
-
   <div>
     <%= form.label :declaration_name, "Your Name" %>
     <%= form.text_field :declaration_name, class: "form-control", required: true %>
   </div>
-
   <div>
     <%= form.label :signature, "Your Signature" %>
     <%= form.text_field :signature, class: "form-control", required: true %>
   </div>
-
   <div>
     <%= form.label :declaration_date, "Date" %>
     <%= form.date_field :declaration_date, class: "form-control", required: true %>

@@ -23,38 +23,28 @@
   </div>
 
   <div>
-    <%= form.label :nin, "NIN (National ID Number)", style: "display: block" %>
-    <%= form.text_field :nin, class: "form-control" %>
-  </div>
-
-  <div>
-    <%= form.label :account_number, "Account Number", style: "display: block" %>
-    <%= form.text_field :account_number, class: "form-control" %>
-  </div>
-
-  <div>
     <%= form.label :amount, "Loan Amount", style: "display: block" %>
-    <%= form.number_field :amount, step: 0.01, class: "form-control" %>
+    <%= form.number_field :amount, step: 0.01, class: "form-control", id: "loan_amount" %>
   </div>
 
   <div>
     <%= form.label :interest_rate, "Interest Rate (%)", style: "display: block" %>
-    <%= form.number_field :interest_rate, step: 0.01, class: "form-control" %>
+    <%= form.number_field :interest_rate, step: 0.01, class: "form-control", id: "loan_interest_rate" %>
   </div>
 
   <div>
     <%= form.label :payment_period, "Payment Period (Months)", style: "display: block" %>
-    <%= form.number_field :payment_period, class: "form-control" %>
+    <%= form.number_field :payment_period, class: "form-control", id: "loan_payment_period", min: 1 %>
   </div>
 
   <div>
     <%= form.label :monthly_installment_payment, "Monthly Installment Payment", style: "display: block" %>
-    <%= form.number_field :monthly_installment_payment, step: 0.01, class: "form-control" %>
+    <%= form.number_field :monthly_installment_payment, step: 0.01, class: "form-control", readonly: true, id: "monthly_installment_payment" %>
   </div>
 
   <div>
     <%= form.label :total_amount_after_deduction, "Total Amount After Deduction", style: "display: block" %>
-    <%= form.number_field :total_amount_after_deduction, step: 0.01, class: "form-control" %>
+    <%= form.number_field :total_amount_after_deduction, step: 0.01, class: "form-control", readonly: true, id: "total_amount_after_deduction" %>
   </div>
 
   <div>
@@ -67,25 +57,38 @@
     <%= form.date_field :date_loan_end, class: "form-control" %>
   </div>
 
-  <h2 class="details">Guarantor Details</h2>
-  <h3>Guarantor 1</h3>
-
-  <div>
-    <%= form.label :guarantor1_name, "Guarantor's Name", style: "display: block" %>
-    <%= form.text_field :guarantor1_name, class: "form-control" %>
-  </div>
-
-  <div>
-    <%= form.label :guarantor1_nin, "Guarantor's NIN", style: "display: block" %>
-    <%= form.text_field :guarantor1_nin, class: "form-control" %>
-  </div>
-
-  <div>
-    <%= form.label :guarantor1_phone, "Guarantor's Phone", style: "display: block" %>
-    <%= form.text_field :guarantor1_phone, class: "form-control" %>
-  </div>
-
   <div>
     <%= form.submit "Apply for Loan", class: "btn btn-primary" %>
   </div>
 <% end %>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const loanAmount = document.getElementById('loan_amount');
+    const loanInterestRate = document.getElementById('loan_interest_rate');
+    const paymentPeriod = document.getElementById('loan_payment_period');
+    const monthlyInstallmentPayment = document.getElementById('monthly_installment_payment');
+    const totalAmountAfterDeduction = document.getElementById('total_amount_after_deduction');
+
+    function calculateLoanDetails() {
+      const amount = parseFloat(loanAmount.value);
+      const interestRate = parseFloat(loanInterestRate.value);
+      const period = parseInt(paymentPeriod.value);
+
+      if (amount && interestRate && period) {
+        const totalAmount = amount + (amount * interestRate / 100);
+        totalAmountAfterDeduction.value = totalAmount.toFixed(2);
+
+        const monthlyInstallment = totalAmount / period;
+        monthlyInstallmentPayment.value = monthlyInstallment.toFixed(2);
+      } else {
+        totalAmountAfterDeduction.value = '';
+        monthlyInstallmentPayment.value = '';
+      }
+    }
+
+    loanAmount.addEventListener('input', calculateLoanDetails);
+    loanInterestRate.addEventListener('input', calculateLoanDetails);
+    paymentPeriod.addEventListener('input', calculateLoanDetails);
+  });
+</script>

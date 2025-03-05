@@ -17,7 +17,9 @@ class MembersController < ApplicationController
     if @member.save
       redirect_to @member, notice: 'Member was successfully created.'
     else
-      render :new
+      flash.now[:alert] = "Member creation failed: #{@member.errors.full_messages.join(', ')}"
+      Rails.logger.error("Member creation failed: #{@member.errors.full_messages.join(', ')}")
+      render :new, status: :unprocessable_entity
     end
   end
 
@@ -28,7 +30,8 @@ class MembersController < ApplicationController
     if @member.update(member_params)
       redirect_to @member, notice: 'Member was successfully updated.'
     else
-      render :edit
+      flash.now[:alert] = "Member update failed: #{@member.errors.full_messages.join(', ')}"
+      render :edit, status: :unprocessable_entity
     end
   end
 
@@ -37,10 +40,8 @@ class MembersController < ApplicationController
     redirect_to members_url, notice: 'Member was successfully deleted.'
   end
 
-  # ✅ New action for auto-filling forms
   def details
-    savings_commitment = @member.savings_commitments.last # Fetch latest savings commitment, if any
-
+    savings_commitment = @member.savings_commitments.last
     render json: {
       surname: @member.surname,
       given_name: @member.given_name,
@@ -68,7 +69,6 @@ class MembersController < ApplicationController
       kin_address: @member.kin_address,
       declaration_name: @member.declaration_name,
       declaration_date: @member.declaration_date,
-      account_number: @member.account&.number,
       target_amount: savings_commitment&.target_amount,
       total_contributed: savings_commitment&.total_contributed,
       savings_progress: savings_commitment ? savings_commitment.progress : 0
@@ -88,7 +88,7 @@ class MembersController < ApplicationController
       :id_number, :id_document_photo, :mother_name, :mother_nationality, :father_name, 
       :father_nationality, :kin_surname, :kin_given_name, :kin_other_name, :kin_date_of_birth, 
       :kin_gender, :kin_relationship, :kin_phone, :kin_address, :declaration_name, 
-      :signature, :declaration_date
+      :signature, :declaration_date, :email
     )
   end
-end
+end  

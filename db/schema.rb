@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_02_28_083021) do
+ActiveRecord::Schema[7.2].define(version: 2025_03_04_213417) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -63,6 +63,9 @@ ActiveRecord::Schema[7.2].define(version: 2025_02_28_083021) do
     t.string "loan_type"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "payment_period"
+    t.decimal "monthly_installment_payment"
+    t.decimal "total_amount_after_deduction"
     t.index ["member_id"], name: "index_loans_on_member_id"
   end
 
@@ -95,6 +98,8 @@ ActiveRecord::Schema[7.2].define(version: 2025_02_28_083021) do
     t.date "declaration_date"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "email"
+    t.index ["email"], name: "index_members_on_email", unique: true
   end
 
   create_table "savings_commitments", force: :cascade do |t|

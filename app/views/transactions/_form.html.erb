@@ -27,9 +27,10 @@
     <%= form.select :transaction_type, ["deposit", "withdraw", "transfer"], { prompt: "Select Transaction Type" }, class: "form-control", id: "transaction_type" %>
   </div>
 
-  <div id="recipient_account_field" style="display: none;">
+  <div>
     <%= form.label :recipient_account_id, "Recipient Account", style: "display: block" %>
-    <%= form.collection_select :recipient_account_id, [], :id, :account_number, { prompt: "Select Recipient Account" }, class: "form-control", id: "recipient_account_select" %>
+    <%= form.select :recipient_account_id, [], { prompt: "Select Recipient Account or Enter Manually" }, class: "form-control", id: "recipient_account_select" %>
+    <input type="text" id="manual_recipient_account" name="manual_recipient_account" class="form-control" placeholder="Enter account manually (if needed)">
   </div>
 
   <div>
@@ -44,20 +45,12 @@
 
 <script>
   document.addEventListener("DOMContentLoaded", function () {
-    var transactionType = document.getElementById("transaction_type");
-    var recipientField = document.getElementById("recipient_account_field");
     var memberSelect = document.getElementById("member_select");
     var accountSelect = document.getElementById("account_select");
     var recipientSelect = document.getElementById("recipient_account_select");
+    var manualRecipientInput = document.getElementById("manual_recipient_account");
 
-    transactionType.addEventListener("change", function () {
-      if (this.value === "transfer") {
-        recipientField.style.display = "block";
-      } else {
-        recipientField.style.display = "none";
-      }
-    });
-
+    // When a member is selected, fetch the account associated with that member.
     memberSelect.addEventListener("change", function () {
       var memberId = this.value;
       if (memberId) {
@@ -82,29 +75,30 @@
       }
     });
 
+    // Populate recipient accounts list.
     function updateRecipientList() {
-      var selectedAccountId = accountSelect.value;
-      if (!selectedAccountId) return;
-
       fetch(`/accounts`)
         .then(response => response.json())
         .then(data => {
-          recipientSelect.innerHTML = "<option>Select Recipient Account</option>";
+          recipientSelect.innerHTML = "<option>Select Recipient Account or Enter Manually</option>";
           data.forEach(function (account) {
-            if (account.id !== parseInt(selectedAccountId)) {
-              var option = new Option(account.account_number, account.id);
-              recipientSelect.appendChild(option);
-            }
+            var option = new Option(account.account_number, account.id);
+            recipientSelect.appendChild(option);
           });
-
-          recipientSelect.disabled = recipientSelect.options.length === 1;
         })
         .catch(error => console.error("Error fetching recipient accounts:", error));
     }
 
-    accountSelect.addEventListener("change", function () {
-      if (transactionType.value === "transfer") {
-        updateRecipientList();
+    updateRecipientList();
+
+    // On form submit, validate that for transfers a recipient is provided.
+    document.forms[0].addEventListener('submit', function (e) {
+      var transactionType = document.getElementById("transaction_type").value;
+      if (transactionType === "transfer") {
+        if (!recipientSelect.value && !manualRecipientInput.value.trim()) {
+          alert("Please specify a recipient account for transfers.");
+          e.preventDefault();
+        }
       }
     });
   });
