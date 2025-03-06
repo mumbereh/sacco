@@ -1,124 +1,72 @@
-<%= form_with(model: loan) do |form| %>
-  <% if loan.errors.any? %>
-    <div style="color: red">
-      <h2><%= pluralize(loan.errors.count, "error") %> prohibited this loan from being saved:</h2>
-      <ul>
-        <% loan.errors.each do |error| %>
-          <li><%= error.full_message %></li>
-        <% end %>
-      </ul>
-    </div>
-  <% end %>
+class Loan < ApplicationRecord
+  belongs_to :member
 
-  <h2 class="details">Loan Application</h2>
+  REQUIRED_FIELDS = %i[amount status loan_type payment_period].freeze
 
-  <div>
-    <%= form.label :client, "Select Member", style: "display: block" %>
-    <%= form.collection_select :member_id, Member.all, :id, :name, prompt: "Select Member", class: "form-control", required: true %>
-  </div>
+  before_validation :set_interest_rate, on: :create
+  before_save :calculate_totals
+  before_save :update_approval_status
 
-  <div>
-    <%= form.label :loan_type, "Loan Type", style: "display: block" %>
-    <%= form.select :loan_type, ["Business Loan", "School Loan", "Land/House Purchase", "Salary Loan", "Emergency Loan", "Others"], { prompt: "Select Loan Type" }, class: "form-control", required: true %>
-  </div>
+  validates :amount, numericality: { greater_than: 0, message: "must be greater than zero" }
+  validates :interest_rate, numericality: { equal_to: 3, message: "must be exactly 3%" }
+  validates :status, inclusion: { in: %w[pending approved rejected repaid processing], message: "must be a valid loan status" }
+  validates :loan_type, inclusion: { in: ["Business Loan", "School Loan", "Land/House Purchase", "Salary Loan", "Emergency Loan", "Others"], message: "must be a valid loan type" }
+  validates :payment_period, numericality: { greater_than: 0, message: "must be greater than zero" }
 
-  <div>
-    <%= form.label :amount, "Loan Amount", style: "display: block" %>
-    <%= form.number_field :amount, step: 0.01, class: "form-control", id: "loan_amount", required: true %>
-  </div>
+  enum approval_status: { pending: 0, loan_officer: 1, secretary: 2, chairperson: 3, approved: 4, rejected: 5 }
 
-  <div>
-    <%= form.label :interest_rate, "Interest Rate (%)", style: "display: block" %>
-    <%= form.number_field :interest_rate, step: 0.01, class: "form-control", id: "loan_interest_rate", value: 3, readonly: true %>
-  </div>
+  after_update :send_notification, if: :saved_change_to_status?
 
-  <div>
-    <%= form.label :payment_period, "Payment Period (Months)", style: "display: block" %>
-    <%= form.number_field :payment_period, class: "form-control", id: "loan_payment_period", min: 1, required: true %>
-  </div>
+  # Public helper methods for the view
+  def loan_officer_approved?
+    approval_status == "loan_officer"
+  end
 
-  <div>
-    <%= form.label :monthly_installment_payment, "Monthly Installment Payment", style: "display: block" %>
-    <%= form.number_field :monthly_installment_payment, step: 0.01, class: "form-control", readonly: true, id: "monthly_installment_payment" %>
-  </div>
+  def secretary_approved?
+    approval_status == "secretary"
+  end
 
-  <div>
-    <%= form.label :total_amount_after_deduction, "Total Amount After Deduction", style: "display: block" %>
-    <%= form.number_field :total_amount_after_deduction, step: 0.01, class: "form-control", readonly: true, id: "total_amount_after_deduction" %>
-  </div>
+  def chairperson_approved?
+    approval_status == "chairperson"
+  end
 
-  <div>
-    <%= form.label :status, "Loan Status", style: "display: block" %>
-    <%= form.select :status, ["pending", "processing", "approved", "rejected", "repaid"], {}, class: "form-control", required: true %>
-  </div>
+  def approve_by_officer(officer)
+    case officer
+    when :loan_officer
+      update(approval_status: :loan_officer) unless loan_officer_approved?
+    when :secretary
+      update(approval_status: :secretary) if loan_officer_approved?
+    when :chairperson
+      if secretary_approved?
+        update(approval_status: :chairperson)
+        finalize_approval if chairperson_approved?
+      end
+    end
+  end
 
-  <div>
-    <%= form.label :approval_status, "Approval Status", style: "display: block" %>
-    <%= form.select :approval_status, Loan.approval_statuses.keys.map { |s| [s.humanize, s] }, {}, class: "form-control", required: true %>
-  </div>
+  private
 
-  <div>
-    <%= form.label :loan_officer_approval, "Loan Officer Approval", style: "display: block" %>
-    <%= form.check_box :loan_officer_approved, {}, true, false %>
-  </div>
+  def finalize_approval
+    update(status: "approved", approval_status: :approved)
+  end
 
-  <div>
-    <%= form.label :secretary_approval, "Secretary Approval", style: "display: block" %>
-    <%= form.check_box :secretary_approved, { disabled: !loan.loan_officer_approved? }, true, false %>
-  </div>
+  def send_notification
+    MemberMailer.loan_status_updated(self.member).deliver_now
+  end
 
-  <div>
-    <%= form.label :chairperson_approval, "Chairperson Approval", style: "display: block" %>
-    <%= form.check_box :chairperson_approved, { disabled: !loan.secretary_approved? }, true, false %>
-  </div>
+  def calculate_totals
+    return if amount.nil? || payment_period.nil? || interest_rate.nil?
 
-  <div>
-    <%= form.label :date_loan_taken, "Date Loan Taken", style: "display: block" %>
-    <%= form.date_field :date_loan_taken, class: "form-control", required: true %>
-  </div>
+    interest_amount = (amount * interest_rate / 100.0) * (payment_period / 12.0)
+    self.total_amount_after_deduction = amount + interest_amount
+    self.monthly_installment_payment = total_amount_after_deduction / payment_period
+  end
 
-  <div>
-    <%= form.label :date_loan_end, "Date Loan Ends", style: "display: block" %>
-    <%= form.date_field :date_loan_end, class: "form-control", required: true %>
-  </div>
+  def set_interest_rate
+    self.interest_rate ||= 3
+  end
 
-  <div>
-    <%= form.submit "Apply for Loan", class: "btn btn-primary", id: "submit-btn" %>
-  </div>
-<% end %>
-
-<script>
-  document.addEventListener('DOMContentLoaded', function() {
-    const loanAmount = document.getElementById('loan_amount');
-    const interestRate = 3; // Fixed interest rate
-    const paymentPeriod = document.getElementById('loan_payment_period');
-    const monthlyInstallmentPayment = document.getElementById('monthly_installment_payment');
-    const totalAmountAfterDeduction = document.getElementById('total_amount_after_deduction');
-    const submitBtn = document.getElementById('submit-btn');
-
-    function calculateLoanDetails() {
-      const amount = parseFloat(loanAmount.value);
-      const period = parseInt(paymentPeriod.value);
-
-      if (amount && period) {
-        const interestAmount = (amount * interestRate / 100.0) * (period / 12.0);
-        const totalAmount = amount + interestAmount;
-        totalAmountAfterDeduction.value = totalAmount.toFixed(2);
-
-        const monthlyInstallment = totalAmount / period;
-        monthlyInstallmentPayment.value = monthlyInstallment.toFixed(2);
-      } else {
-        totalAmountAfterDeduction.value = '';
-        monthlyInstallmentPayment.value = '';
-      }
-      validateForm();
-    }
-
-    function validateForm() {
-      submitBtn.disabled = !(loanAmount.value && paymentPeriod.value);
-    }
-
-    loanAmount.addEventListener('input', calculateLoanDetails);
-    paymentPeriod.addEventListener('input', calculateLoanDetails);
-  });
-</script>
+  def update_approval_status
+    self.status = "processing" if approval_status_changed? && approval_status == "loan_officer"
+  end
+end

@@ -47,29 +47,26 @@
     <%= form.number_field :total_amount_after_deduction, step: 0.01, class: "form-control", readonly: true, id: "total_amount_after_deduction" %>
   </div>
 
+  <!-- Loan Status: Disabled and automatically updated -->
   <div>
     <%= form.label :status, "Loan Status", style: "display: block" %>
-    <%= form.select :status, ["pending", "processing", "approved", "rejected", "repaid"], {}, class: "form-control", required: true %>
+    <%= form.select :status, ["pending", "processing", "approved", "rejected", "repaid"], {}, class: "form-control", required: true, disabled: true %>
   </div>
 
-  <div>
-    <%= form.label :approval_status, "Approval Status", style: "display: block" %>
-    <%= form.select :approval_status, Loan.approval_statuses.keys.map { |s| [s.humanize, s] }, {}, class: "form-control", required: true %>
-  </div>
-
+  <!-- Approval Dropdowns -->
   <div>
     <%= form.label :loan_officer_approval, "Loan Officer Approval", style: "display: block" %>
-    <%= form.check_box :loan_officer_approved, {}, true, false %>
+    <%= form.select :loan_officer_approval, [["Pending", "pending"], ["Approved", "approved"]], {}, class: "form-control", required: true %>
   </div>
 
   <div>
     <%= form.label :secretary_approval, "Secretary Approval", style: "display: block" %>
-    <%= form.check_box :secretary_approved, { disabled: !loan.loan_officer_approved? }, true, false %>
+    <%= form.select :secretary_approval, [["Pending", "pending"], ["Approved", "approved"]], { prompt: "Select Approval" }, class: "form-control", required: true, disabled: true %>
   </div>
 
   <div>
     <%= form.label :chairperson_approval, "Chairperson Approval", style: "display: block" %>
-    <%= form.check_box :chairperson_approved, { disabled: !loan.secretary_approved? }, true, false %>
+    <%= form.select :chairperson_approval, [["Pending", "pending"], ["Approved", "approved"]], { prompt: "Select Approval" }, class: "form-control", required: true, disabled: true %>
   </div>
 
   <div>
@@ -96,6 +93,55 @@
     const totalAmountAfterDeduction = document.getElementById('total_amount_after_deduction');
     const submitBtn = document.getElementById('submit-btn');
 
+    // Approval dropdown elements
+    const loanOfficerApproval = document.getElementById('loan_loan_officer_approval');
+    const secretaryApproval = document.getElementById('loan_secretary_approval');
+    const chairpersonApproval = document.getElementById('loan_chairperson_approval');
+
+    // Event listener for Loan Officer approval dropdown
+    loanOfficerApproval.addEventListener('change', function() {
+      if (this.value === 'approved') {
+        secretaryApproval.disabled = false;
+      } else {
+        secretaryApproval.value = "pending";
+        secretaryApproval.disabled = true;
+        chairpersonApproval.value = "pending";
+        chairpersonApproval.disabled = true;
+      }
+      updateLoanStatus();
+    });
+
+    // Event listener for Secretary approval dropdown
+    secretaryApproval.addEventListener('change', function() {
+      if (this.value === 'approved') {
+        chairpersonApproval.disabled = false;
+      } else {
+        chairpersonApproval.value = "pending";
+        chairpersonApproval.disabled = true;
+      }
+      updateLoanStatus();
+    });
+
+    // Event listener for Chairperson approval dropdown
+    chairpersonApproval.addEventListener('change', updateLoanStatus);
+
+    // Update loan status based on approvals
+    function updateLoanStatus() {
+      const loApproved = loanOfficerApproval.value === 'approved';
+      const secApproved = secretaryApproval.value === 'approved';
+      const chairApproved = chairpersonApproval.value === 'approved';
+      
+      const statusSelect = document.querySelector('select[name="loan[status]"]');
+      if (loApproved && secApproved && chairApproved) {
+        statusSelect.value = 'approved';
+      } else if (loApproved) {
+        statusSelect.value = 'processing';
+      } else {
+        statusSelect.value = 'pending';
+      }
+    }
+
+    // Calculate loan totals
     function calculateLoanDetails() {
       const amount = parseFloat(loanAmount.value);
       const period = parseInt(paymentPeriod.value);
