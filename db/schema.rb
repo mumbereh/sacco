@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_03_06_065921) do
+ActiveRecord::Schema[7.2].define(version: 2025_03_06_083938) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -55,8 +55,20 @@ ActiveRecord::Schema[7.2].define(version: 2025_03_06_065921) do
     t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
   end
 
-  create_table "loans", force: :cascade do |t|
+  create_table "loan_repayments", force: :cascade do |t|
+    t.bigint "loan_id", null: false
     t.bigint "member_id", null: false
+    t.decimal "payment_amount"
+    t.date "payment_date"
+    t.text "note"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["loan_id"], name: "index_loan_repayments_on_loan_id"
+    t.index ["member_id"], name: "index_loan_repayments_on_member_id"
+  end
+  
+  create_table "loans", force: :cascade do |t|
+    t.integer "member_id", null: false
     t.decimal "amount", null: false
     t.decimal "interest_rate", default: "3.0", null: false
     t.string "status", default: "pending", null: false
@@ -65,10 +77,11 @@ ActiveRecord::Schema[7.2].define(version: 2025_03_06_065921) do
     t.integer "approval_status", default: 0, null: false
     t.integer "payment_period", null: false
     t.decimal "total_amount_after_deduction"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["member_id"], name: "index_loans_on_member_id"
+    t.date "date_loan_taken"
+    t.date "date_loan_end"
+    t.timestamps
   end
+  
 
   create_table "members", force: :cascade do |t|
     t.string "membership_type"
@@ -129,6 +142,8 @@ ActiveRecord::Schema[7.2].define(version: 2025_03_06_065921) do
   add_foreign_key "accounts", "members"
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "loan_repayments", "loans"
+  add_foreign_key "loan_repayments", "members"
   add_foreign_key "loans", "members"
   add_foreign_key "savings_commitments", "members"
   add_foreign_key "transactions", "accounts"

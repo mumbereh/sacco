@@ -11,6 +11,9 @@ class CreateLoans < ActiveRecord::Migration[7.0]
       t.integer :payment_period, null: false
       t.decimal :total_amount_after_deduction
 
+      t.date :date_loan_taken
+      t.date :date_loan_end
+
       t.timestamps
     end
   end
