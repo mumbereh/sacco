@@ -13,18 +13,24 @@
   <h2 class="details">Transaction Details</h2>
 
   <div>
-    <%= form.label :member_id, "Select Member", style: "display: block" %>
-    <%= form.collection_select :member_id, Member.all, :id, :name, prompt: "Select Member", class: "form-control" %>
+    <%= form.label :member_id, "Member", style: "display: block" %>
+    <%= form.collection_select :member_id, Member.all, :id, :name, { prompt: "Select Member" }, class: "form-control", id: "member_select" %>
   </div>
 
   <div>
     <%= form.label :account_id, "Account ID", style: "display: block" %>
-    <%= form.collection_select :account_id, Account.all, :id, :account_number, prompt: "Select Account", class: "form-control" %>
+    <%= form.select :account_id, [], { prompt: "Select Member First" }, class: "form-control", id: "account_select", disabled: true %>
   </div>
 
   <div>
     <%= form.label :transaction_type, "Transaction Type", style: "display: block" %>
-    <%= form.select :transaction_type, ["deposit", "withdraw", "transfer"], { prompt: "Select Transaction Type" }, class: "form-control" %>
+    <%= form.select :transaction_type, ["deposit", "withdraw", "transfer"], { prompt: "Select Transaction Type" }, class: "form-control", id: "transaction_type" %>
+  </div>
+
+  <div>
+    <%= form.label :recipient_account_id, "Recipient Account", style: "display: block" %>
+    <%= form.select :recipient_account_id, [], { prompt: "Select Recipient Account or Enter Manually" }, class: "form-control", id: "recipient_account_select" %>
+    <input type="text" id="manual_recipient_account" name="manual_recipient_account" class="form-control" placeholder="Enter account manually (if needed)">
   </div>
 
   <div>
@@ -36,3 +42,64 @@
     <%= form.submit "Submit Transaction", class: "btn btn-primary" %>
   </div>
 <% end %>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    var memberSelect = document.getElementById("member_select");
+    var accountSelect = document.getElementById("account_select");
+    var recipientSelect = document.getElementById("recipient_account_select");
+    var manualRecipientInput = document.getElementById("manual_recipient_account");
+
+    // When a member is selected, fetch the account associated with that member.
+    memberSelect.addEventListener("change", function () {
+      var memberId = this.value;
+      if (memberId) {
+        fetch(`/members/${memberId}/account`)
+          .then(response => response.json())
+          .then(data => {
+            accountSelect.innerHTML = "";
+            if (data.account_number) {
+              var option = new Option(data.account_number, data.account_id);
+              accountSelect.appendChild(option);
+              accountSelect.disabled = false;
+            } else {
+              var defaultOption = new Option("No account found", "");
+              accountSelect.appendChild(defaultOption);
+              accountSelect.disabled = true;
+            }
+          })
+          .catch(error => console.error("Error fetching account details:", error));
+      } else {
+        accountSelect.innerHTML = "<option>Select Member First</option>";
+        accountSelect.disabled = true;
+      }
+    });
+
+    // Populate recipient accounts list.
+    function updateRecipientList() {
+      fetch(`/accounts`)
+        .then(response => response.json())
+        .then(data => {
+          recipientSelect.innerHTML = "<option>Select Recipient Account or Enter Manually</option>";
+          data.forEach(function (account) {
+            var option = new Option(account.account_number, account.id);
+            recipientSelect.appendChild(option);
+          });
+        })
+        .catch(error => console.error("Error fetching recipient accounts:", error));
+    }
+
+    updateRecipientList();
+
+    // On form submit, validate that for transfers a recipient is provided.
+    document.forms[0].addEventListener('submit', function (e) {
+      var transactionType = document.getElementById("transaction_type").value;
+      if (transactionType === "transfer") {
+        if (!recipientSelect.value && !manualRecipientInput.value.trim()) {
+          alert("Please specify a recipient account for transfers.");
+          e.preventDefault();
+        }
+      }
+    });
+  });
+</script>

@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Transaction Receipt - Kanyatsi United Dev't Group SACCO</title>
+  <style type="text/css">
+    body {
+      font-family: 'Helvetica', 'Arial', sans-serif;
+      background-color: #f2f2f2;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      max-width: 600px;
+      margin: 40px auto;
+      background-color: #fff;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.15);
+    }
+    .header {
+      background: linear-gradient(135deg, #00529B, #0073e6);
+      color: #fff;
+      padding: 20px;
+      text-align: center;
+    }
+    .header h1 {
+      margin: 0;
+      font-size: 24px;
+      letter-spacing: 1px;
+    }
+    .header h2 {
+      margin: 5px 0 0;
+      font-size: 18px;
+      font-weight: normal;
+    }
+    .content {
+      padding: 20px;
+      color: #333;
+    }
+    .content p {
+      margin: 0 0 15px;
+      line-height: 1.5;
+    }
+    .receipt-title {
+      text-align: center;
+      font-size: 20px;
+      color: #00529B;
+      border-bottom: 2px dashed #00529B;
+      padding-bottom: 10px;
+      margin-bottom: 20px;
+    }
+    .details {
+      margin: 20px 0;
+    }
+    .details table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    .details th, .details td {
+      text-align: left;
+      padding: 10px;
+      border-bottom: 1px solid #f0f0f0;
+    }
+    .details th {
+      background-color: #f9f9f9;
+      color: #555;
+      width: 40%;
+    }
+    .total {
+      font-size: 18px;
+      font-weight: bold;
+      text-align: right;
+      margin-top: 20px;
+      color: #0073e6;
+    }
+    .footer {
+      background-color: #f9f9f9;
+      color: #777;
+      text-align: center;
+      padding: 15px;
+      font-size: 12px;
+      border-top: 1px solid #e0e0e0;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>Kanyatsi United Dev't  SACCO</h1>
+      <h2>Transaction Receipt</h2>
+    </div>
+    <div class="content">
+      <p>Dear <%= @member.name %>,</p>
+      <p>Your recent transaction has been successfully processed. Please review the details below:</p>
+      
+      <div class="receipt-title">Receipt Details</div>
+      
+      <div class="details">
+        <table>
+          <tr>
+            <th>Account Number</th>
+            <td><%= @member.account.account_number %></td>
+          </tr>
+          <tr>
+            <th>Transaction Type</th>
+            <td><%= @transaction.transaction_type.capitalize %></td>
+          </tr>
+          <tr>
+            <th>Amount</th>
+            <td><%= number_to_currency(@transaction.amount, unit: "UGX ") %></td>
+          </tr>
+          <tr>
+            <th>Current Balance</th>
+            <td><%= number_to_currency(@transaction.account.balance, unit: "UGX ") %></td>
+          </tr>
+          <tr>
+            <th>Transaction Date</th>
+            <td><%= @transaction.created_at.strftime("%B %d, %Y at %I:%M %p") %></td>
+          </tr>
+          <% if @transaction.transaction_type == "transfer" %>
+            <tr>
+              <th>Transferred To</th>
+              <% if @transaction.recipient_account.present? %>
+                <td><%= @transaction.recipient_account.account_number %></td>
+              <% elsif @transaction.manual_recipient_account.present? %>
+                <td><%= @transaction.manual_recipient_account %></td>
+              <% else %>
+                <td>N/A</td>
+              <% end %>
+            </tr>
+          <% end %>
+        </table>
+      </div>
+      
+      <p class="total">Thank you for banking with us!</p>
+      <p>Best regards,<br>Kanyatsi United Dev't SACCO</p>
+    </div>
+    <div class="footer">
+      <p>This is an automated message from Kanyatsi United Dev't Group SACCO. Please do not reply to this email.</p>
+    </div>
+  </div>
+</body>
+</html>

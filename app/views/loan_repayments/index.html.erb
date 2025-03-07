@@ -1,0 +1,32 @@
+<h1>Loan Repayments</h1>
+
+<table class="styled-table">
+  <thead>
+    <tr>
+      <th>Loan ID</th>
+      <th>Member ID</th>
+      <th>Payment Amount</th>
+      <th>Payment Date</th>
+      <th>Note</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @loan_repayments.each do |loan_repayment| %>
+      <tr>
+        <td><%= loan_repayment.loan_id %></td>
+        <td><%= loan_repayment.member_id %></td>
+        <td><%= number_to_currency(loan_repayment.payment_amount) %></td>
+        <td><%= loan_repayment.payment_date %></td>
+        <td><%= loan_repayment.note %></td>
+        <td>
+          <%= link_to 'Show', loan_repayment_path(loan_repayment), class: 'btn btn-info' %>
+          <%= link_to 'Edit', edit_loan_repayment_path(loan_repayment), class: 'btn btn-warning' %>
+          <%= link_to 'Delete', loan_repayment_path(loan_repayment), method: :delete, data: { confirm: 'Are you sure you want to delete this repayment?' }, class: 'btn btn-danger' %>
+        </td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<%= link_to 'New Loan Repayment', new_loan_repayment_path, class: 'btn btn-primary' %>

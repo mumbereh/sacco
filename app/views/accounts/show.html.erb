@@ -1,10 +1,18 @@
-<p style="color: green"><%= notice %></p>
+<% content_for :title, "Account Details" %>
 
-<%= render @account %>
+<h1>Account Details</h1>
 
 <div>
-  <%= link_to "Edit this account", edit_account_path(@account) %> |
-  <%= link_to "Back to accounts", accounts_path %>
+  <p><strong>Account Number:</strong> <%= @account.account_number %></p>
+  <p><strong>Member Name:</strong> <%= @account.member.name %></p>
+  <p><strong>Account Type:</strong> <%= @account.account_type %></p>
+  <p><strong>Principal Amount:</strong> <%= number_to_currency(@account.principal_amount, unit: "UGX ") %></p>
+  <p><strong>Deposit:</strong> <%= number_to_currency(@account.deposit, unit: "UGX ") %></p>
+  <p><strong>Balance:</strong> <%= number_to_currency(@account.balance, unit: "UGX ") %></p>
+</div>
 
-  <%= button_to "Destroy this account", @account, method: :delete %>
+<div>
+  <%= link_to "Edit Account", edit_account_path(@account), class: "btn btn-warning" %>
+  <%= link_to "Back to Accounts", accounts_path, class: "btn btn-secondary" %>
+  <%= button_to "Delete Account", @account, method: :delete, data: { confirm: "Are you sure?" }, class: "btn btn-danger" %>
 </div>

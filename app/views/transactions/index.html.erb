@@ -1,16 +1,46 @@
-<p style="color: green"><%= notice %></p>
+<h1>Transaction List</h1>
 
-<% content_for :title, "Transactions" %>
-
-<h1>Transactions</h1>
-
-<div id="transactions">
-  <% @transactions.each do |transaction| %>
-    <%= render transaction %>
-    <p>
-      <%= link_to "Show this transaction", transaction %>
-    </p>
-  <% end %>
-</div>
-
-<%= link_to "New transaction", new_transaction_path %>
+<table class="styled-table">
+  <thead>
+    <tr>
+      <th>Member</th>
+      <th>Account ID</th>
+      <th>Transaction Type</th>
+      <th>Recipient Account</th>
+      <th>Amount</th>
+      <th>Balance</th>
+      <th>Created At</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @transactions.each do |transaction| %>
+      <tr>
+        <td><%= transaction.member.name %></td>
+        <td><%= transaction.account.account_number %></td>
+        <td><%= transaction.transaction_type.capitalize %></td>
+        <td>
+          <% if transaction.transaction_type == "transfer" %>
+            <% if transaction.recipient_account.present? %>
+              <%= transaction.recipient_account.account_number %>
+            <% elsif transaction.manual_recipient_account.present? %>
+              <%= transaction.manual_recipient_account %>
+            <% else %>
+              N/A
+            <% end %>
+          <% else %>
+            N/A
+          <% end %>
+        </td>
+        <td><%= number_to_currency(transaction.amount) %></td>
+        <td><%= number_to_currency(transaction.account.balance, unit: "UGX ") %></td>
+        <td><%= transaction.created_at.strftime("%B %d, %Y %H:%M") %></td>
+        <td>
+          <%= link_to 'Details', transaction_path(transaction), class: "btn btn-info btn-sm" %>
+          <%= link_to 'Update', edit_transaction_path(transaction), class: "btn btn-warning btn-sm" %>
+        </td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+<%= link_to "New Transaction", new_transaction_path, class: "btn btn-primary" %>

@@ -1,16 +1,39 @@
-<p style="color: green"><%= notice %></p>
+<h1 class="page-title">All Members</h1>
 
-<% content_for :title, "Members" %>
 
-<h1>Members</h1>
+<table class="styled-table">
+  <thead>
+    <tr>
+    <th>S/N</th>
+      <th>Full Name</th>
+      <th>Membership Type</th>
+      <th>Date of Birth</th>
+      <th>Gender</th>
+      <th>Phone</th>
+      <th>Next of Kin</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @members.each_with_index do |member, index| %>
+      <tr>
+        <td><%= index + 1 %></td>
+        <td><%= member.name %></td>
+        <td><%= member.membership_type %></td>
+        <td><%= member.date_of_birth %></td>
+        <td><%= member.gender.capitalize %></td>
+        <td><%= member.phone %></td>
+        <td><%= "#{member.kin_given_name} #{member.kin_surname} (#{member.kin_relationship})" %></td>
+        <td class="actions">
+  <%= link_to "Details", member_path(member), class: "btn btn-info btn-sm" %>
+  <%= link_to "Update", edit_member_path(member), class: "btn btn-warning btn-sm" %>
+</td>
 
-<div id="members">
-  <% @members.each do |member| %>
-    <%= render member %>
-    <p>
-      <%= link_to "Show this member", member %>
-    </p>
-  <% end %>
+      </tr>
+    <% end %>
+   
+  </tbody>
+</table>
+<div class="">
+<%= link_to "Register Member", new_member_path, class: "btn btn-primary" %>
 </div>
-
-<%= link_to "New member", new_member_path %>

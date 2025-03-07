@@ -1,13 +1,9 @@
 class LoansController < ApplicationController
-  before_action :set_loan, only: %i[ show edit update destroy ]
+  before_action :set_loan, only: [:show, :edit, :update, :destroy]
 
-  # GET /loans or /loans.json
+  # GET /loans
   def index
-    @loans = Loan.all
-  end
-
-  # GET /loans/1 or /loans/1.json
-  def show
+    @loans = Loan.all.order(created_at: :desc)
   end
 
   # GET /loans/new
@@ -15,56 +11,78 @@ class LoansController < ApplicationController
     @loan = Loan.new
   end
 
-  # GET /loans/1/edit
+  # POST /loans
+  def create
+    @loan = Loan.new(loan_params)
+    if @loan.save
+      redirect_to @loan, notice: "Loan application was successfully created."
+    else
+      render :new
+    end
+  end
+
+  # GET /loans/:id
+  def show
+  end
+
+  # GET /loans/:id/edit
   def edit
   end
 
-  # POST /loans or /loans.json
-  def create
-    @loan = Loan.new(loan_params)
-
-    respond_to do |format|
-      if @loan.save
-        format.html { redirect_to @loan, notice: "Loan was successfully created." }
-        format.json { render :show, status: :created, location: @loan }
-      else
-        format.html { render :new, status: :unprocessable_entity }
-        format.json { render json: @loan.errors, status: :unprocessable_entity }
-      end
-    end
-  end
-
-  # PATCH/PUT /loans/1 or /loans/1.json
+  # PATCH/PUT /loans/:id
   def update
-    respond_to do |format|
-      if @loan.update(loan_params)
-        format.html { redirect_to @loan, notice: "Loan was successfully updated." }
-        format.json { render :show, status: :ok, location: @loan }
+    # When attempting to set status to approved, verify that all approvals are in place.
+    if loan_params[:status] == "approved"
+      if @loan.loan_officer_approved? && @loan.secretary_approved? && @loan.chairperson_approved?
+        if @loan.update(loan_params)
+          flash[:notice] = "Loan approved and processed."
+          redirect_to @loan
+        else
+          flash[:alert] = "Loan update failed."
+          render :edit
+        end
       else
-        format.html { render :edit, status: :unprocessable_entity }
-        format.json { render json: @loan.errors, status: :unprocessable_entity }
+        flash[:alert] = "Loan approval must go through all officers (Loan Officer, Secretary, and Chairperson)."
+        render :edit
+      end
+    else
+      if @loan.update(loan_params)
+        flash[:notice] = "Loan updated successfully."
+        redirect_to @loan
+      else
+        render :edit
       end
     end
   end
 
-  # DELETE /loans/1 or /loans/1.json
+  # DELETE /loans/:id
   def destroy
-    @loan.destroy!
-
-    respond_to do |format|
-      format.html { redirect_to loans_path, status: :see_other, notice: "Loan was successfully destroyed." }
-      format.json { head :no_content }
-    end
+    @loan.destroy
+    redirect_to loans_path, notice: "Loan deleted."
   end
 
   private
-    # Use callbacks to share common setup or constraints between actions.
-    def set_loan
-      @loan = Loan.find(params[:id])
-    end
 
-    # Only allow a list of trusted parameters through.
-    def loan_params
-      params.require(:loan).permit(:member_id, :amount, :interest_rate, :status)
-    end
+  def set_loan
+    @loan = Loan.find(params[:id])
+  end
+
+  def loan_params
+    params.require(:loan).permit(
+      :member_id,
+      :loan_type,
+      :amount,
+      :interest_rate,
+      :payment_period,
+      :monthly_installment_payment,
+      :total_amount_after_deduction,
+      :status,
+      :approval_status,
+      :loan_officer_approved,
+      :secretary_approved,
+      :chairperson_approved,
+      :date_loan_taken,
+      :date_loan_end
+    )
+  end
 end

@@ -1,4 +1,5 @@
 Rails.application.routes.draw do
+  resources :loan_repayments
   # Dashboard
   get 'dashboard', to: 'dashboard#index'
 
