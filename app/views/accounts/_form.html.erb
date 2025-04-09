@@ -1,42 +1,96 @@
-# Updated account form
-<%= form_with(model: account) do |form| %>
-  <% if account.errors.any? %>
+<%= form_with(model: @account, local: true) do |form| %>
+  <% if @account.errors.any? %>
     <div style="color: red">
-      <h2><%= pluralize(account.errors.count, "error") %> prohibited this account from being saved:</h2>
+      <h2><%= pluralize(@account.errors.count, "error") %> prohibited this account from being saved:</h2>
       <ul>
-        <% account.errors.each do |error| %>
-          <li><%= error.full_message %></li>
+        <% @account.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
         <% end %>
       </ul>
     </div>
   <% end %>
 
-  <div>
-     <%= form.label :member_id, "Member", style: "display: block" %>
-    <%= form.collection_select :member_id, Member.all, :id, ->(m) { "#{m.surname} #{m.given_name} #{m.other_name}" }, prompt: "Select Member", class: "form-control" %>
-
+  <div class="form-group">
+    <%= form.label :member_id, "Select Member", class: "form-label" %>
+    <%= form.collection_select :member_id, Member.all, :id, :name, prompt: "Choose a member", class: "form-control", required: true %>
   </div>
 
-  <div>
-     <%= form.label :membership_status, "Membership Status", style: "display: block" %>
-     <%= form.text_field :membership_status, class: "form-control" %>
+  <div class="form-group">
+    <%= form.label :account_type, "Account Type", class: "form-label" %>
+    <%= form.select :account_type, ["Regular", "Savings"], prompt: "Choose Account Type", class: "form-control", required: true %>
   </div>
 
-  <div>
-     <%= form.label :account_type, "Account Type", style: "display: block" %>
-     <%= form.select :account_type, ["Current", "Fixed"], { prompt: "Select Account Type" }, class: "form-control" %>
+  <p><strong>Breakdown:</strong></p>
+  <ul>
+    <li>
+      <%= check_box_tag 'membership_fee', '50000', false, id: 'membership_fee' %>
+      <%= label_tag 'membership_fee', 'Membership Fee: UGX 50,000' %>
+    </li>
+    <li>
+      <%= check_box_tag 'tshirt_fee', '30000', false, id: 'tshirt_fee' %>
+      <%= label_tag 'tshirt_fee', 'T-Shirt Fee: UGX 30,000' %>
+    </li>
+    <li>
+      <%= check_box_tag 'welfare_fee', '20000', false, id: 'welfare_fee' %>
+      <%= label_tag 'welfare_fee', 'Welfare Fee: UGX 20,000' %>
+    </li>
+    <li>
+      <%= check_box_tag 'share_checked', '', false, id: 'share_checked' %>
+      <%= label_tag 'share_checked', 'Include Shares' %>
+      <div style="margin-left: 20px; margin-top: 5px;">
+        <label for="share_quantity">Number of Shares (UGX 100,000 each):</label>
+        <%= number_field_tag 'share_quantity', 1, min: 1, class: 'form-control', id: 'share_quantity', disabled: true %>
+      </div>
+    </li>
+  </ul>
+
+  <div class="form-group mt-3">
+    <%= form.label :deposit, "Total Deposit (UGX)", class: "form-label" %>
+    <%= form.number_field :deposit, value: "", class: "form-control", id: "deposit", readonly: true, required: true %>
   </div>
 
-  <div class="field">
-  <%= form.label :principal_amount %>
-  <%= form.number_field :principal_amount, step: 0.01 %>
-</div>
-  <div>
-     <%= form.label :deposit, "Deposit", style: "display: block" %>
-     <%= form.text_field :deposit, class: "form-control" %>
-  </div>
-
-  <div>
-     <%= form.submit "Create Account", class: "btn btn-primary" %>
+  <div class="form-group mt-3">
+    <%= form.submit "Create Account", class: "btn btn-primary", id: "submit-btn", disabled: true %>
   </div>
 <% end %>
+
+<script>
+  const membershipFee = document.getElementById('membership_fee');
+  const tshirtFee = document.getElementById('tshirt_fee');
+  const welfareFee = document.getElementById('welfare_fee');
+  const shareCheckbox = document.getElementById('share_checked');
+  const shareQuantity = document.getElementById('share_quantity');
+  const depositField = document.getElementById('deposit');
+  const submitBtn = document.getElementById('submit-btn');
+
+  function updateTotal() {
+    let total = 0;
+    let allSelected = membershipFee.checked && tshirtFee.checked && welfareFee.checked;
+    let validShares = shareCheckbox.checked && parseInt(shareQuantity.value) >= 1;
+
+    if (membershipFee.checked) total += 50000;
+    if (tshirtFee.checked) total += 30000;
+    if (welfareFee.checked) total += 20000;
+    if (shareCheckbox.checked && parseInt(shareQuantity.value) >= 1) {
+      total += 100000 * parseInt(shareQuantity.value);
+    }
+
+    depositField.value = total;
+
+    // Enable/disable share quantity input
+    shareQuantity.disabled = !shareCheckbox.checked;
+
+    // Enable submit only when all mandatory options selected
+    submitBtn.disabled = !(allSelected && validShares);
+  }
+
+  // Event Listeners
+  membershipFee.addEventListener('change', updateTotal);
+  tshirtFee.addEventListener('change', updateTotal);
+  welfareFee.addEventListener('change', updateTotal);
+  shareCheckbox.addEventListener('change', updateTotal);
+  shareQuantity.addEventListener('input', updateTotal);
+
+  // Initial load
+  updateTotal();
+</script>

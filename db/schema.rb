@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_03_06_083938) do
+ActiveRecord::Schema[7.2].define(version: 2025_04_09_101103) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -66,7 +66,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_03_06_083938) do
     t.index ["loan_id"], name: "index_loan_repayments_on_loan_id"
     t.index ["member_id"], name: "index_loan_repayments_on_member_id"
   end
-  
+
   create_table "loans", force: :cascade do |t|
     t.integer "member_id", null: false
     t.decimal "amount", null: false
@@ -79,9 +79,12 @@ ActiveRecord::Schema[7.2].define(version: 2025_03_06_083938) do
     t.decimal "total_amount_after_deduction"
     t.date "date_loan_taken"
     t.date "date_loan_end"
-    t.timestamps
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.string "loan_officer_approval"
+    t.string "secretary_approval"
+    t.string "chairperson_approval"
   end
-  
 
   create_table "members", force: :cascade do |t|
     t.string "membership_type"
@@ -113,6 +116,10 @@ ActiveRecord::Schema[7.2].define(version: 2025_03_06_083938) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "email"
+    t.string "village"
+    t.string "parish"
+    t.string "subcounty"
+    t.string "district"
     t.index ["email"], name: "index_members_on_email", unique: true
   end
 

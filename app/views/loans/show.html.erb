@@ -1,10 +1,22 @@
-<p style="color: green"><%= notice %></p>
+<h2>Loan Details</h2>
 
-<%= render @loan %>
+<p><strong>Member:</strong> <%= @loan.member&.name || "N/A" %></p>
+<p><strong>Loan Type:</strong> <%= @loan.loan_type %></p>
+<p><strong>Loan Amount:</strong> <%= number_to_currency(@loan.amount, unit: "UGX ") %></p>
+<p><strong>Interest Rate:</strong> <%= @loan.interest_rate %>%</p>
+<p><strong>Payment Period:</strong> <%= @loan.payment_period %> months</p>
+<p><strong>Monthly Installment:</strong> <%= number_to_currency(@loan.monthly_installment_payment, unit: "UGX ") %></p>
+<p><strong>Total Amount After Deduction:</strong> <%= number_to_currency(@loan.total_amount_after_deduction, unit: "UGX ") %></p>
 
-<div>
-  <%= link_to "Edit this loan", edit_loan_path(@loan) %> |
-  <%= link_to "Back to loans", loans_path %>
+<h3>Approval Status</h3>
+<p><strong>Loan Officer Approval:</strong> <%= @loan.loan_officer_approval == 'approved' ? 'Approved' : 'Pending' %></p>
+<p><strong>Secretary Approval:</strong> <%= @loan.secretary_approval == 'approved' ? 'Approved' : 'Pending' %></p>
+<p><strong>Chairperson Approval:</strong> <%= @loan.chairperson_approval == 'approved' ? 'Approved' : 'Pending' %></p>
+<p><strong>Loan Status:</strong> <%= @loan.status&.capitalize || "Pending" %></p>
 
-  <%= button_to "Destroy this loan", @loan, method: :delete %>
-</div>
+<h3>Loan Dates</h3>
+<p><strong>Date Loan Taken:</strong> <%= @loan.date_loan_taken&.strftime('%d %B %Y') || "Not set" %></p>
+<p><strong>Date Loan Ends:</strong> <%= @loan.date_loan_end&.strftime('%d %B %Y') || "Not set" %></p>
+
+<%= link_to 'Edit Loan', edit_loan_path(@loan), class: 'btn btn-warning' %>
+<%= link_to 'Back to Loans', loans_path, class: 'btn btn-secondary' %>

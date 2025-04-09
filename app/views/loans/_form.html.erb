@@ -47,26 +47,24 @@
     <%= form.number_field :total_amount_after_deduction, step: 0.01, class: "form-control", readonly: true, id: "total_amount_after_deduction" %>
   </div>
 
-  <!-- Loan Status: Disabled and automatically updated -->
   <div>
     <%= form.label :status, "Loan Status", style: "display: block" %>
-    <%= form.select :status, ["pending", "processing", "approved", "rejected", "repaid"], {}, class: "form-control", required: true, disabled: true %>
+    <%= form.select :status, ["pending", "processing", "approved", "rejected", "repaid"], {}, class: "form-control", required: true, disabled: true, id: "loan_status" %>
   </div>
 
-  <!-- Approval Dropdowns -->
   <div>
     <%= form.label :loan_officer_approval, "Loan Officer Approval", style: "display: block" %>
-    <%= form.select :loan_officer_approval, [["Pending", "pending"], ["Approved", "approved"]], {}, class: "form-control", required: true %>
+    <%= form.select :loan_officer_approval, [["Pending", "pending"], ["Approved", "approved"]], {}, class: "form-control", required: true, id: "loan_loan_officer_approval" %>
   </div>
 
   <div>
     <%= form.label :secretary_approval, "Secretary Approval", style: "display: block" %>
-    <%= form.select :secretary_approval, [["Pending", "pending"], ["Approved", "approved"]], { prompt: "Select Approval" }, class: "form-control", required: true, disabled: true %>
+    <%= form.select :secretary_approval, [["Pending", "pending"], ["Approved", "approved"]], { prompt: "Select Approval" }, class: "form-control", required: true, disabled: true, id: "loan_secretary_approval" %>
   </div>
 
   <div>
     <%= form.label :chairperson_approval, "Chairperson Approval", style: "display: block" %>
-    <%= form.select :chairperson_approval, [["Pending", "pending"], ["Approved", "approved"]], { prompt: "Select Approval" }, class: "form-control", required: true, disabled: true %>
+    <%= form.select :chairperson_approval, [["Pending", "pending"], ["Approved", "approved"]], { prompt: "Select Approval" }, class: "form-control", required: true, disabled: true, id: "loan_chairperson_approval" %>
   </div>
 
   <div>
@@ -85,86 +83,76 @@
 <% end %>
 
 <script>
-  document.addEventListener('DOMContentLoaded', function() {
+  document.addEventListener('DOMContentLoaded', () => {
     const loanAmount = document.getElementById('loan_amount');
-    const interestRate = 3; // Fixed interest rate
     const paymentPeriod = document.getElementById('loan_payment_period');
     const monthlyInstallmentPayment = document.getElementById('monthly_installment_payment');
     const totalAmountAfterDeduction = document.getElementById('total_amount_after_deduction');
     const submitBtn = document.getElementById('submit-btn');
 
-    // Approval dropdown elements
     const loanOfficerApproval = document.getElementById('loan_loan_officer_approval');
     const secretaryApproval = document.getElementById('loan_secretary_approval');
     const chairpersonApproval = document.getElementById('loan_chairperson_approval');
+    const statusSelect = document.getElementById('loan_status');
 
-    // Event listener for Loan Officer approval dropdown
-    loanOfficerApproval.addEventListener('change', function() {
-      if (this.value === 'approved') {
-        secretaryApproval.disabled = false;
-      } else {
-        secretaryApproval.value = "pending";
-        secretaryApproval.disabled = true;
-        chairpersonApproval.value = "pending";
-        chairpersonApproval.disabled = true;
-      }
-      updateLoanStatus();
-    });
+    const INTEREST_RATE = 3;
 
-    // Event listener for Secretary approval dropdown
-    secretaryApproval.addEventListener('change', function() {
-      if (this.value === 'approved') {
-        chairpersonApproval.disabled = false;
-      } else {
-        chairpersonApproval.value = "pending";
-        chairpersonApproval.disabled = true;
-      }
-      updateLoanStatus();
-    });
-
-    // Event listener for Chairperson approval dropdown
-    chairpersonApproval.addEventListener('change', updateLoanStatus);
-
-    // Update loan status based on approvals
-    function updateLoanStatus() {
-      const loApproved = loanOfficerApproval.value === 'approved';
-      const secApproved = secretaryApproval.value === 'approved';
-      const chairApproved = chairpersonApproval.value === 'approved';
-      
-      const statusSelect = document.querySelector('select[name="loan[status]"]');
-      if (loApproved && secApproved && chairApproved) {
-        statusSelect.value = 'approved';
-      } else if (loApproved) {
-        statusSelect.value = 'processing';
-      } else {
-        statusSelect.value = 'pending';
-      }
-    }
-
-    // Calculate loan totals
     function calculateLoanDetails() {
       const amount = parseFloat(loanAmount.value);
       const period = parseInt(paymentPeriod.value);
 
-      if (amount && period) {
-        const interestAmount = (amount * interestRate / 100.0) * (period / 12.0);
-        const totalAmount = amount + interestAmount;
-        totalAmountAfterDeduction.value = totalAmount.toFixed(2);
-
-        const monthlyInstallment = totalAmount / period;
-        monthlyInstallmentPayment.value = monthlyInstallment.toFixed(2);
+      if (!isNaN(amount) && !isNaN(period) && period > 0) {
+        const interest = (amount * INTEREST_RATE / 100) * (period / 12);
+        const total = amount + interest;
+        totalAmountAfterDeduction.value = total.toFixed(2);
+        monthlyInstallmentPayment.value = (total / period).toFixed(2);
       } else {
         totalAmountAfterDeduction.value = '';
         monthlyInstallmentPayment.value = '';
       }
-      validateForm();
+
+      validateSubmit();
     }
 
-    function validateForm() {
-      submitBtn.disabled = !(loanAmount.value && paymentPeriod.value);
+    function validateSubmit() {
+      submitBtn.disabled = !loanAmount.value || !paymentPeriod.value;
+    }
+
+    function updateLoanStatus() {
+      const loApproved = loanOfficerApproval.value === 'approved';
+      const secApproved = secretaryApproval.value === 'approved';
+      const chairApproved = chairpersonApproval.value === 'approved';
+
+      if (loApproved) {
+        secretaryApproval.disabled = false;
+      } else {
+        secretaryApproval.disabled = true;
+        secretaryApproval.value = "pending";
+        chairpersonApproval.disabled = true;
+        chairpersonApproval.value = "pending";
+      }
+
+      if (loApproved && secApproved) {
+        chairpersonApproval.disabled = false;
+      } else {
+        chairpersonApproval.disabled = true;
+        chairpersonApproval.value = "pending";
+      }
+
+      if (loApproved && secApproved && chairApproved) {
+        statusSelect.value = "approved";
+      } else if (loApproved) {
+        statusSelect.value = "processing";
+      } else {
+        statusSelect.value = "pending";
+      }
     }
 
     loanAmount.addEventListener('input', calculateLoanDetails);
     paymentPeriod.addEventListener('input', calculateLoanDetails);
+
+    loanOfficerApproval.addEventListener('change', updateLoanStatus);
+    secretaryApproval.addEventListener('change', updateLoanStatus);
+    chairpersonApproval.addEventListener('change', updateLoanStatus);
   });
 </script>

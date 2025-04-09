@@ -2,19 +2,23 @@ class Member < ApplicationRecord
   has_one_attached :passport_photo
   has_one_attached :id_document_photo
   has_one :account, dependent: :destroy
+has_many :loans
+has_many :loan_repayments
+has_many :transactions
+
 
   REQUIRED_FIELDS = %i[
     surname given_name date_of_birth phone email id_number membership_type
-    marital_status physical_address gender identification_type
+    marital_status village parish subcounty district gender identification_type
     mother_name mother_nationality father_name father_nationality
-    kin_surname kin_given_name kin_date_of_birth
-    kin_gender kin_relationship kin_phone kin_address
-    declaration_name signature declaration_date
+    kin_surname kin_given_name kin_date_of_birth kin_gender kin_relationship
+    kin_phone kin_address declaration_name signature declaration_date
   ].freeze
 
   ALLOWED_IMAGE_TYPES = %w[image/png image/jpg image/jpeg].freeze
   MAX_IMAGE_SIZE = 5.megabytes
 
+  # Validate presence for required fields
   validates *REQUIRED_FIELDS, presence: true
   validates :email, uniqueness: { case_sensitive: false },
                     format: { with: URI::MailTo::EMAIL_REGEXP }
@@ -30,6 +34,7 @@ class Member < ApplicationRecord
   validates :identification_type, inclusion: { in: ["National Id", "Driver’s License", "Passport"],
                                                 message: "must be a valid ID type" }
 
+  # Custom validations for passport photo and ID document photo
   validate :validate_passport_photo
   validate :validate_id_document_photo
 
@@ -39,6 +44,7 @@ class Member < ApplicationRecord
 
   private
 
+  # Ensure passport photo is attached and valid
   def validate_passport_photo
     if passport_photo.attached?
       validate_image(passport_photo, "Passport photo")
@@ -47,6 +53,7 @@ class Member < ApplicationRecord
     end
   end
 
+  # Ensure ID document photo is attached and valid
   def validate_id_document_photo
     if id_document_photo.attached?
       validate_image(id_document_photo, "ID document photo")
@@ -55,6 +62,7 @@ class Member < ApplicationRecord
     end
   end
 
+  # Validate image file size and type
   def validate_image(image, name)
     return unless image.attached?
 

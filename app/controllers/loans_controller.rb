@@ -54,7 +54,17 @@ class LoansController < ApplicationController
       end
     end
   end
+  def approve
+    @loan = Loan.find(params[:id])
+    officer = params[:officer].to_sym
 
+    if @loan.approve_by_officer(officer)
+      flash[:notice] = "#{officer.to_s.titleize} approval successful!"
+    else
+      flash[:alert] = "Something went wrong during approval."
+    end
+    redirect_to loan_path(@loan)
+  end
   # DELETE /loans/:id
   def destroy
     @loan.destroy

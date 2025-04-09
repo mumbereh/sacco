@@ -1,32 +1,39 @@
 <% content_for :title, "Accounts" %>
 
-<h1>All Accounts</h1>
+<h1>All Member Accounts</h1>
 
-<table class="styled-table">
-  <thead>
-    <tr>
-      <th>Account Number</th>
-      <th>Member Name</th>
-      <th>Membership Type</th>
-      <th>Account Type</th>
-      <th>Balance</th>
-      <th>Actions</th>
-    </tr>
-  </thead>
-  <tbody>
-    <% @accounts.each do |account| %>
+<% if @accounts.any? %>
+  <table class="styled-table">
+    <thead>
       <tr>
-        <td><%= account.account_number %></td>
-        <td><%= account.member.name %></td>
-        <td><%= account.member.membership_type %></td>
-        <td><%= account.account_type %></td>
-        <td><%= number_to_currency(account.balance, unit: "UGX ") %></td>
-        <td>
-          <%= link_to "view_details", account_path(account), class: "btn btn-info" %>
-          <%= link_to "Update", edit_account_path(account), class: "btn btn-warning" %>
+        <th>Account Number</th>
+        <th>Member Name</th>
+        <th>Membership Type</th>
+        <th>Account Type</th>
+        <th>Balance</th>
+        <th>Actions</th>
       </tr>
-    <% end %>
-  </tbody>
-</table>
+    </thead>
+    <tbody>
+      <% @accounts.each do |account| %>
+        <tr>
+          <td><%= account.account_number %></td>
+          <td><%= account.member.name %></td>
+          <td><%= account.member.membership_type %></td>
+          <td><%= account.account_type %></td>
+          <td><%= number_to_currency(account.balance, unit: "UGX ") %></td>
+          <td>
+            <%= link_to "View", account_path(account), class: "btn btn-info btn-sm" %>
+            <%= link_to "Edit", edit_account_path(account), class: "btn btn-warning btn-sm" %>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+<% else %>
+  <p>No accounts have been created yet.</p>
+<% end %>
 
-<%= link_to "New Account", new_account_path, class: "btn btn-primary" %>
+<br>
+
+<%= link_to "Create New Account", new_account_path, class: "btn btn-primary" %>

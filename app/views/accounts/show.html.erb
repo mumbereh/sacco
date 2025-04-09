@@ -1,18 +1,59 @@
-<% content_for :title, "Account Details" %>
+<h1 class="text-center">Account Details</h1>
 
-<h1>Account Details</h1>
+<div class="account-details card p-4 my-4">
+  <div class="mb-3">
+    <p><strong>Account Number:</strong> <%= @account.account_number %></p>
+    <p><strong>Member Name:</strong> <%= @account.member.name %></p>
+    <p><strong>Account Type:</strong> <%= @account.account_type %></p>
+    <p><strong>Number of Shares:</strong> <%= (@account.deposit / 100_000).to_i %></p>  <!-- Calculated from deposit -->
+    <p><strong>Principal Amount:</strong> <%= number_to_currency((@account.deposit / 100_000).to_i * 50_000, unit: "UGX ") %></p> <!-- Calculated from shares -->
+    <p><strong>Total Deposit:</strong> <%= number_to_currency(@account.deposit, unit: "UGX ") %></p>
+    <p><strong>Balance:</strong> <%= number_to_currency(@account.balance, unit: "UGX ") %></p>
+  </div>
 
-<div>
-  <p><strong>Account Number:</strong> <%= @account.account_number %></p>
-  <p><strong>Member Name:</strong> <%= @account.member.name %></p>
-  <p><strong>Account Type:</strong> <%= @account.account_type %></p>
-  <p><strong>Principal Amount:</strong> <%= number_to_currency(@account.principal_amount, unit: "UGX ") %></p>
-  <p><strong>Deposit:</strong> <%= number_to_currency(@account.deposit, unit: "UGX ") %></p>
-  <p><strong>Balance:</strong> <%= number_to_currency(@account.balance, unit: "UGX ") %></p>
+  <div class="d-flex justify-content-between mt-4">
+    <%= link_to "Edit Account", edit_account_path(@account), class: "btn btn-warning" %>
+    <%= link_to "Back to Accounts", accounts_path, class: "btn btn-secondary" %>
+    <%= button_to "Delete Account", @account, method: :delete, data: { confirm: "Are you sure?" }, class: "btn btn-danger" %>
+  </div>
 </div>
 
-<div>
-  <%= link_to "Edit Account", edit_account_path(@account), class: "btn btn-warning" %>
-  <%= link_to "Back to Accounts", accounts_path, class: "btn btn-secondary" %>
-  <%= button_to "Delete Account", @account, method: :delete, data: { confirm: "Are you sure?" }, class: "btn btn-danger" %>
-</div>
+<style>
+  .account-details {
+    max-width: 600px;
+    margin: 0 auto;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  }
+
+  .account-details p {
+    font-size: 1.1rem;
+    margin: 10px 0;
+  }
+
+  .account-details p strong {
+    color: #333;
+  }
+
+  .btn {
+    padding: 10px 20px;
+    font-size: 1rem;
+    border-radius: 5px;
+  }
+
+  .btn-warning {
+    background-color: #ffc107;
+    color: white;
+  }
+
+  .btn-secondary {
+    background-color: #6c757d;
+    color: white;
+  }
+
+  .btn-danger {
+    background-color: #dc3545;
+    color: white;
+  }
+</style>

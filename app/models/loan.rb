@@ -1,5 +1,6 @@
 class Loan < ApplicationRecord
   belongs_to :member
+  has_many :loan_repayments
 
   REQUIRED_FIELDS = %i[amount status loan_type payment_period].freeze
 
@@ -17,17 +18,17 @@ class Loan < ApplicationRecord
 
   after_update :send_notification, if: :saved_change_to_status?
 
-  # Public helper methods for the view
+  # ✅ Make these methods public so the views can access them
   def loan_officer_approved?
-    approval_status == "loan_officer"
+    approval_status >= "loan_officer"
   end
 
   def secretary_approved?
-    approval_status == "secretary"
+    approval_status >= "secretary"
   end
 
   def chairperson_approved?
-    approval_status == "chairperson"
+    approval_status >= "chairperson"
   end
 
   def approve_by_officer(officer)
@@ -42,6 +43,14 @@ class Loan < ApplicationRecord
         finalize_approval if chairperson_approved?
       end
     end
+  end
+
+  def total_repaid
+    loan_repayments.sum(:payment_amount)
+  end
+
+  def outstanding_balance
+    total_amount_after_deduction.to_f - total_repaid.to_f
   end
 
   private

@@ -47,8 +47,27 @@
   </div>
 
   <div>
-    <%= form.label :physical_address, "Physical Address" %>
-    <%= form.text_area :physical_address, class: "form-control", required: true %>
+    <h3>Physical Address</h3>
+  </div>
+
+  <div class="form-group">
+    <%= form.label :village, "Village" %>
+    <%= form.text_field :village, class: "form-control", required: true %>
+  </div>
+
+  <div class="form-group">
+    <%= form.label :parish, "Parish" %>
+    <%= form.text_field :parish, class: "form-control", required: true %>
+  </div>
+
+  <div class="form-group">
+    <%= form.label :subcounty, "Subcounty" %>
+    <%= form.text_field :subcounty, class: "form-control", required: true %>
+  </div>
+
+  <div class="form-group">
+    <%= form.label :district, "District" %>
+    <%= form.text_field :district, class: "form-control", required: true %>
   </div>
 
   <div>
@@ -79,6 +98,11 @@
       <p>Current photo:</p>
       <%= image_tag @member.passport_photo, width: 100 %>
     <% end %>
+    <% if @member.errors[:passport_photo].any? %>
+      <div style="color: red">
+        <%= @member.errors[:passport_photo].first %>
+      </div>
+    <% end %>
   </div>
 
   <div>
@@ -87,6 +111,11 @@
     <% if @member.persisted? && @member.id_document_photo.attached? %>
       <p>Current ID document:</p>
       <%= image_tag @member.id_document_photo, width: 100 %>
+    <% end %>
+    <% if @member.errors[:id_document_photo].any? %>
+      <div style="color: red">
+        <%= @member.errors[:id_document_photo].first %>
+      </div>
     <% end %>
   </div>
 
