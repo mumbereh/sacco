@@ -1,22 +1,86 @@
-<h2>Loan Details</h2>
+<h1>Loan Details</h1>
 
-<p><strong>Member:</strong> <%= @loan.member&.name || "N/A" %></p>
-<p><strong>Loan Type:</strong> <%= @loan.loan_type %></p>
-<p><strong>Loan Amount:</strong> <%= number_to_currency(@loan.amount, unit: "UGX ") %></p>
-<p><strong>Interest Rate:</strong> <%= @loan.interest_rate %>%</p>
-<p><strong>Payment Period:</strong> <%= @loan.payment_period %> months</p>
-<p><strong>Monthly Installment:</strong> <%= number_to_currency(@loan.monthly_installment_payment, unit: "UGX ") %></p>
-<p><strong>Total Amount After Deduction:</strong> <%= number_to_currency(@loan.total_amount_after_deduction, unit: "UGX ") %></p>
+<% if notice.present? %>
+  <p style="color: green"><%= notice %></p>
+<% end %>
 
-<h3>Approval Status</h3>
-<p><strong>Loan Officer Approval:</strong> <%= @loan.loan_officer_approval == 'approved' ? 'Approved' : 'Pending' %></p>
-<p><strong>Secretary Approval:</strong> <%= @loan.secretary_approval == 'approved' ? 'Approved' : 'Pending' %></p>
-<p><strong>Chairperson Approval:</strong> <%= @loan.chairperson_approval == 'approved' ? 'Approved' : 'Pending' %></p>
-<p><strong>Loan Status:</strong> <%= @loan.status&.capitalize || "Pending" %></p>
+<table class="styled-table">
+  <tr>
+    <th>Member</th>
+    <td><%= @loan.member.present? ? @loan.member.name : "N/A" %></td>
+  </tr>
+  <tr>
+    <th>Loan Type</th>
+    <td><%= @loan.loan_type %></td>
+  </tr>
+  <tr>
+    <th>Amount</th>
+    <td><%= number_to_currency(@loan.amount) %></td>
+  </tr>
+  <tr>
+    <th>Interest Rate</th>
+    <td><%= @loan.interest_rate %>%</td>
+  </tr>
+  <tr>
+    <th>Payment Period</th>
+    <td><%= @loan.payment_period %> months</td>
+  </tr>
+  <tr>
+    <th>Monthly Installment</th>
+    <td><%= number_to_currency(@loan.monthly_installment_payment) %></td>
+  </tr>
+  <tr>
+    <th>Total Payable Amount</th>
+    <td><%= number_to_currency(@loan.total_amount_after_deduction) %></td>
+  </tr>
+  <tr>
+    <th>Loan Start Date</th>
+    <td><%= @loan.date_loan_taken.strftime("%d %B %Y") if @loan.date_loan_taken %></td>
+  </tr>
+  <tr>
+    <th>Loan End Date</th>
+    <td><%= @loan.date_loan_end.strftime("%d %B %Y") if @loan.date_loan_end %></td>
+  </tr>
+  <tr>
+    <th>Status</th>
+    <td><%= @loan.status.capitalize %></td>
+  </tr>
+  <tr>
+    <th>Approval Status</th>
+    <td>
+      <% if @loan.approval_status == "pending" %>
+        <span style="color: red;">Pending Approval</span>
+      <% elsif @loan.approval_status == "loan_officer" %>
+        <span style="color: orange;">Approved by Loan Officer</span>
+      <% elsif @loan.approval_status == "secretary" %>
+        <span style="color: blue;">Approved by Secretary</span>
+      <% elsif @loan.approval_status == "chairperson" %>
+        <span style="color: green;">Approved by Chairperson</span>
+      <% elsif @loan.approval_status == "approved" %>
+        <span style="color: green;">Final Approval Granted</span>
+      <% elsif @loan.approval_status == "rejected" %>
+        <span style="color: red;">Rejected</span>
+      <% end %>
+    </td>
+  </tr>
+</table>
 
-<h3>Loan Dates</h3>
-<p><strong>Date Loan Taken:</strong> <%= @loan.date_loan_taken&.strftime('%d %B %Y') || "Not set" %></p>
-<p><strong>Date Loan Ends:</strong> <%= @loan.date_loan_end&.strftime('%d %B %Y') || "Not set" %></p>
+<div class="action-buttons">
+  <% unless @loan.loan_officer_approved? %>
+    <%= button_to "Approve as Loan Officer", approve_loan_path(@loan, officer: "loan_officer"), method: :patch, class: "btn btn-success" %>
+  <% end %>
 
-<%= link_to 'Edit Loan', edit_loan_path(@loan), class: 'btn btn-warning' %>
-<%= link_to 'Back to Loans', loans_path, class: 'btn btn-secondary' %>
+  <% if @loan.loan_officer_approved? && !@loan.secretary_approved? %>
+    <%= button_to "Approve as Secretary", approve_loan_path(@loan, officer: "secretary"), method: :patch, class: "btn btn-success" %>
+  <% end %>
+
+  <% if @loan.secretary_approved? && !@loan.chairperson_approved? %>
+    <%= button_to "Approve as Chairperson", approve_loan_path(@loan, officer: "chairperson"), method: :patch, class: "btn btn-success" %>
+  <% end %>
+
+  <% if @loan.chairperson_approved? %>
+    <%= button_to "Finalize Loan Approval", approve_loan_path(@loan, officer: "approved"), method: :patch, class: "btn btn-primary" %>
+  <% end %>
+</div>
+
+<%= link_to "Back to Loans", loans_path, class: "btn btn-primary" %>

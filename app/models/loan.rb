@@ -18,7 +18,7 @@ class Loan < ApplicationRecord
 
   after_update :send_notification, if: :saved_change_to_status?
 
-  # ✅ Make these methods public so the views can access them
+  # Approval check methods
   def loan_officer_approved?
     approval_status >= "loan_officer"
   end
@@ -31,6 +31,7 @@ class Loan < ApplicationRecord
     approval_status >= "chairperson"
   end
 
+  # Approval by each officer
   def approve_by_officer(officer)
     case officer
     when :loan_officer
@@ -45,12 +46,19 @@ class Loan < ApplicationRecord
     end
   end
 
+  # Repaid and outstanding balance calculation
   def total_repaid
     loan_repayments.sum(:payment_amount)
   end
 
   def outstanding_balance
     total_amount_after_deduction.to_f - total_repaid.to_f
+  end
+
+  # Update repayment status based on outstanding balance
+  def update_repayment_status
+    new_status = outstanding_balance <= 0 ? "repaid" : "progress"
+    update(repayment_status: new_status) if repayment_status != new_status
   end
 
   private

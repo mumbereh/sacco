@@ -1,5 +1,5 @@
 class LoansController < ApplicationController
-  before_action :set_loan, only: [:show, :edit, :update, :destroy]
+  before_action :set_loan, only: [:show, :edit, :update, :destroy, :approve]
 
   # GET /loans
   def index
@@ -54,17 +54,55 @@ class LoansController < ApplicationController
       end
     end
   end
+
+  # Custom approval action for the loan officers
   def approve
-    @loan = Loan.find(params[:id])
     officer = params[:officer].to_sym
 
-    if @loan.approve_by_officer(officer)
-      flash[:notice] = "#{officer.to_s.titleize} approval successful!"
+    case officer
+    when :loan_officer
+      if @loan.loan_officer_approved?
+        flash[:alert] = "Loan Officer has already approved this loan."
+      else
+        @loan.update(approval_status: :loan_officer)
+        @loan.send_notification # Send notification after approval
+        flash[:notice] = "Loan approved by Loan Officer."
+      end
+    when :secretary
+      if !@loan.loan_officer_approved?
+        flash[:alert] = "Loan must be approved by Loan Officer first."
+      elsif @loan.secretary_approved?
+        flash[:alert] = "Secretary has already approved this loan."
+      else
+        @loan.update(approval_status: :secretary)
+        @loan.send_notification # Send notification after approval
+        flash[:notice] = "Loan approved by Secretary."
+      end
+    when :chairperson
+      if !@loan.secretary_approved?
+        flash[:alert] = "Secretary must approve the loan first."
+      elsif @loan.chairperson_approved?
+        flash[:alert] = "Chairperson has already approved this loan."
+      else
+        @loan.update(approval_status: :chairperson)
+        @loan.send_notification # Send notification after approval
+        flash[:notice] = "Loan approved by Chairperson."
+      end
+    when :approved
+      if @loan.loan_officer_approved? && @loan.secretary_approved? && @loan.chairperson_approved?
+        @loan.update(status: "approved", approval_status: :approved)
+        @loan.send_notification # Send notification after final approval
+        flash[:notice] = "Loan final approval granted."
+      else
+        flash[:alert] = "All officers must approve the loan before final approval."
+      end
     else
-      flash[:alert] = "Something went wrong during approval."
+      flash[:alert] = "Invalid approval stage."
     end
+
     redirect_to loan_path(@loan)
   end
+
   # DELETE /loans/:id
   def destroy
     @loan.destroy

@@ -1,24 +1,24 @@
 <h1>Loan Repayments</h1>
 
+
+
 <table class="styled-table">
   <thead>
     <tr>
       <th>Loan ID</th>
-      <th>Member ID</th>
+      <th>Member</th>
       <th>Payment Amount</th>
       <th>Payment Date</th>
-      <th>Note</th>
       <th>Actions</th>
     </tr>
   </thead>
   <tbody>
     <% @loan_repayments.each do |loan_repayment| %>
       <tr>
-        <td><%= loan_repayment.loan_id %></td>
-        <td><%= loan_repayment.member_id %></td>
-        <td><%= number_to_currency(loan_repayment.payment_amount, unit: "UGX ")%></td>
+        <td><%= loan_repayment.loan.id %></td>
+        <td><%= loan_repayment.loan.member.name %></td>
+        <td><%= number_to_currency(loan_repayment.payment_amount, unit: "UGX ") %></td>
         <td><%= loan_repayment.payment_date %></td>
-        <td><%= loan_repayment.note %></td>
         <td>
           <%= link_to 'Show', loan_repayment_path(loan_repayment), class: 'btn btn-info' %>
           <%= link_to 'Edit', edit_loan_repayment_path(loan_repayment), class: 'btn btn-warning' %>
@@ -30,9 +30,3 @@
 </table>
 
 <%= link_to 'New Loan Repayment', new_loan_repayment_path, class: 'btn btn-primary' %>
-
-<%= form.collection_select :loan_id, Loan.all, :id,
-  ->(loan) {
-    "##{loan.id} - #{loan.loan_type} (Outstanding: UGX #{number_with_delimiter(outstanding_balance_for_loan(loan).to_i)})"
-  },
-  prompt: "Choose a Loan", class: "form-control", required: true %>

@@ -9,7 +9,7 @@ class Transaction < ApplicationRecord
   validates :account_id, presence: { message: "Account must be selected" }
   validates :transaction_type, inclusion: { in: ["deposit", "withdraw", "transfer"], message: "must be a valid transaction type" }
   validates :amount, numericality: { greater_than: 0, message: "must be a positive amount" }
-  
+
   # For withdraw and transfer, check that sufficient funds remain (including a non-withdrawable 20,000)
   validate :sufficient_funds_for_withdrawal, if: -> { transaction_type.in?(["withdraw", "transfer"]) }
   validate :valid_recipient_for_transfer, if: -> { transaction_type == "transfer" }

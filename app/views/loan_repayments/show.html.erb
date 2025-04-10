@@ -1,25 +1,10 @@
-<% content_for :title, "Showing loan repayment" %>
+<h1>Loan Repayment Details</h1>
 
-<div class="md:w-2/3 w-full">
-  <% if notice.present? %>
-    <p class="py-2 px-3 bg-green-50 mb-5 text-green-500 font-medium rounded-md inline-block" id="notice">
-      <%= notice %>
-    </p>
-  <% end %>
+<p><strong>Loan ID:</strong> <%= @loan_repayment.loan.id %></p>
+<p><strong>Member Name:</strong> <%= @loan_repayment.loan.member.name %></p>
+<p><strong>Payment Amount:</strong> <%= number_to_currency(@loan_repayment.payment_amount, unit: "UGX ") %></p>
+<p><strong>Payment Date:</strong> <%= @loan_repayment.payment_date %></p>
 
-  <h1 class="font-bold text-4xl">Showing loan repayment</h1>
-
-  <!-- Render the loan repayment details -->
-  <%= render @loan_repayment %>
-
-  <!-- Edit loan repayment link -->
-  <%= link_to "Edit this loan repayment", edit_loan_repayment_path(@loan_repayment), class: "mt-2 rounded-md px-3.5 py-2.5 bg-gray-100 hover:bg-gray-50 inline-block font-medium" %>
-
-  <!-- Back to loan repayments link -->
-  <%= link_to "Back to loan repayments", loan_repayments_path, class: "ml-2 rounded-md px-3.5 py-2.5 bg-gray-100 hover:bg-gray-50 inline-block font-medium" %>
-
-  <!-- Delete loan repayment button -->
-  <div class="inline-block ml-2">
-    <%= button_to "Destroy this loan repayment", @loan_repayment, method: :delete, class: "mt-2 rounded-md px-3.5 py-2.5 text-white bg-red-600 hover:bg-red-500 font-medium cursor-pointer", data: { turbo_confirm: "Are you sure?" } %>
-  </div>
-</div>
+<%= link_to 'Back to List', loan_repayments_path, class: 'btn btn-secondary' %>
+<%= link_to 'Edit', edit_loan_repayment_path(@loan_repayment), class: 'btn btn-warning' %>
+<%= link_to 'Delete', loan_repayment_path(@loan_repayment), method: :delete, data: { confirm: 'Are you sure you want to delete this repayment?' }, class: 'btn btn-danger' %>

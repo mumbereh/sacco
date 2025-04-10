@@ -22,21 +22,17 @@
         <td><%= loan.interest_rate %></td>
         <td>
           <%= case loan.approval_status
-               when "pending" then "Pending"
-               when "loan_officer" then "Loan Officer Approval"
-               when "secretary" then "Secretary Approval"
-               when "chairperson" then "Chairperson Approval"
-               when "approved" then "Approved"
-               when "rejected" then "Rejected"
-               else "Unknown"
-               end %>
+              when "pending" then "Pending"
+              when "loan_officer" then "Loan Officer Approval"
+              when "secretary" then "Secretary Approval"
+              when "chairperson" then "Chairperson Approval"
+              when "approved" then "Approved"
+              when "rejected" then "Rejected"
+              else "Unknown"
+              end %>
         </td>
-        <td>
-          <%= number_to_currency(loan.outstanding_balance, unit: "UGX ") %>
-        </td>
-        <td>
-          <%= loan.total_repaid > 0 ? "Repaid" : "Not Repaid" %>
-        </td>
+        <td><%= number_to_currency(loan.outstanding_balance, unit: "UGX ") %></td>
+        <td><%= loan.repayment_status %></td>
         <td>
           <%= link_to 'Show', loan_path(loan), class: 'btn btn-info' %>
           <%= link_to 'Edit', edit_loan_path(loan), class: 'btn btn-warning' %>
@@ -48,4 +44,3 @@
 </table>
 
 <%= link_to 'New Loan', new_loan_path, class: 'btn btn-primary' %>
-

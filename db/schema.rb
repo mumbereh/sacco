@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_04_09_101103) do
+ActiveRecord::Schema[7.2].define(version: 2025_04_10_115652) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -84,6 +84,9 @@ ActiveRecord::Schema[7.2].define(version: 2025_04_09_101103) do
     t.string "loan_officer_approval"
     t.string "secretary_approval"
     t.string "chairperson_approval"
+    t.string "repayment_status"
+    t.boolean "secretary_approved"
+    t.boolean "chairperson_approved"
   end
 
   create_table "members", force: :cascade do |t|
@@ -141,6 +144,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_04_09_101103) do
     t.decimal "amount"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "description"
     t.index ["account_id"], name: "index_transactions_on_account_id"
     t.index ["member_id"], name: "index_transactions_on_member_id"
     t.index ["recipient_account_id"], name: "index_transactions_on_recipient_account_id"

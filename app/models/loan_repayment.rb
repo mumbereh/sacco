@@ -8,22 +8,17 @@ class LoanRepayment < ApplicationRecord
   after_create :process_payment
 
   def process_payment
-    outstanding = loan.total_amount_after_deduction - loan.total_repaid
+    outstanding = loan.outstanding_balance
 
     if payment_amount > outstanding
-      errors.add(:payment_amount, "exceeds the outstanding loan balance of UGX #{outstanding}")
+      errors.add(:payment_amount, "exceeds the outstanding loan balance of UGX #{outstanding.to_i}")
       raise ActiveRecord::Rollback
     end
 
-    # Update loan repayment tracking
-    loan.total_repaid ||= 0
-    loan.total_repaid += payment_amount
-    loan.save!  # Save the loan with updated total_repaid
+    # No need to update total_repaid — it's calculated dynamically
 
-    # Mark loan as fully repaid
-    if loan.total_repaid >= loan.total_amount_after_deduction
-      loan.update!(status: "repaid")
-    end
+    # Update repayment status
+    loan.update_repayment_status
 
     # Record this repayment as a transaction
     create_repayment_transaction
@@ -36,7 +31,8 @@ class LoanRepayment < ApplicationRecord
 
     raise "Account not found for repayment" unless account
 
-    Transaction.create!(
+    # Ensure description is included in the transaction
+    transaction = Transaction.create!(
       account: account,
       member: member,
       amount: payment_amount,
