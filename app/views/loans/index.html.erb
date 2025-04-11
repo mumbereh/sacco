@@ -5,42 +5,79 @@
     <tr>
       <th>Member</th>
       <th>Loan Type</th>
-      <th>Loan Amount</th>
-      <th>Interest Rate (%)</th>
+      <th>Amount</th>
+      <th>Rate</th>
+      <th>Months</th>
       <th>Status</th>
-      <th>Outstanding Balance</th>
-      <th>Repayment Status</th>
-      <th>Action</th>
+      <th>Approval Status</th>
+      <th>Actions</th>
     </tr>
   </thead>
   <tbody>
     <% @loans.each do |loan| %>
       <tr>
-        <td><%= loan.member.name %></td>
+        <td><%= loan.member&.name || "N/A" %></td>
         <td><%= loan.loan_type %></td>
-        <td><%= number_to_currency(loan.amount, unit: "UGX ") %></td>
+        <td><%= number_to_currency(loan.amount) %></td>
         <td><%= loan.interest_rate %></td>
+        <th><%= loan.payment_period %></th>
+        <td><%= loan.status&.capitalize || "N/A" %></td>
         <td>
-          <%= case loan.approval_status
-              when "pending" then "Pending"
-              when "loan_officer" then "Loan Officer Approval"
-              when "secretary" then "Secretary Approval"
-              when "chairperson" then "Chairperson Approval"
-              when "approved" then "Approved"
-              when "rejected" then "Rejected"
-              else "Unknown"
-              end %>
+          <% status = loan.approval_status.to_s %>
+          <%=
+            case status
+            when "pending"
+              content_tag(:span, "Pending", style: "color: red;")
+            when "loan_officer"
+              content_tag(:span, "Loan Officer", style: "color: orange;")
+            when "secretary"
+              content_tag(:span, "Secretary", style: "color: blue;")
+            when "chairperson"
+              content_tag(:span, "Chairperson", style: "color: green;")
+            when "approved"
+              content_tag(:span, "Final", style: "color: green;")
+            else
+              status.titleize
+            end
+          %>
         </td>
-        <td><%= number_to_currency(loan.outstanding_balance, unit: "UGX ") %></td>
-        <td><%= loan.repayment_status %></td>
         <td>
-          <%= link_to 'Show', loan_path(loan), class: 'btn btn-info' %>
-          <%= link_to 'Edit', edit_loan_path(loan), class: 'btn btn-warning' %>
-          <%= link_to 'Delete', loan_path(loan), method: :delete, data: { confirm: 'Are you sure you want to delete this loan?' }, class: 'btn btn-danger' %>
+          <%= link_to 'Show', loan_path(loan), class: "btn btn-primary" %>
+          <%= link_to 'Edit', edit_loan_path(loan), class: "btn btn-warning" %>
+          <%= link_to 'Delete', loan, method: :delete, data: { confirm: 'Are you sure?' }, class: "btn btn-danger" %>
         </td>
       </tr>
     <% end %>
   </tbody>
 </table>
 
-<%= link_to 'New Loan', new_loan_path, class: 'btn btn-primary' %>
+<%= link_to 'New Loan Application', new_loan_path, class: "btn btn-success" %>
+
+<style>
+  .styled-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+  }
+
+  .styled-table th, .styled-table td {
+    border: 1px solid #ccc;
+    padding: 10px;
+  }
+
+  .styled-table th {
+    background-color: grey;
+  }
+
+  .btn {
+    padding: 6px 12px;
+    margin: 2px;
+    border-radius: 5px;
+    text-decoration: none;
+  }
+
+  .btn-primary { background: #007bff; color: white; }
+  .btn-warning { background: orange; color: white; }
+  .btn-danger { background: red; color: white; }
+  .btn-success { background: green; color: white; margin-top: 20px; display: inline-block; }
+</style>

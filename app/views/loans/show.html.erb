@@ -2,12 +2,14 @@
 
 <% if notice.present? %>
   <p style="color: green"><%= notice %></p>
+<% elsif alert.present? %>
+  <p style="color: red"><%= alert %></p>
 <% end %>
 
 <table class="styled-table">
   <tr>
     <th>Member</th>
-    <td><%= @loan.member.present? ? @loan.member.name : "N/A" %></td>
+    <td><%= @loan.member&.name || "N/A" %></td>
   </tr>
   <tr>
     <th>Loan Type</th>
@@ -19,7 +21,7 @@
   </tr>
   <tr>
     <th>Interest Rate</th>
-    <td><%= @loan.interest_rate %>%</td>
+    <td><%= @loan.interest_rate %> %</td>
   </tr>
   <tr>
     <th>Payment Period</th>
@@ -35,11 +37,11 @@
   </tr>
   <tr>
     <th>Loan Start Date</th>
-    <td><%= @loan.date_loan_taken.strftime("%d %B %Y") if @loan.date_loan_taken %></td>
+    <td><%= @loan.date_loan_taken&.strftime("%d %B %Y") %></td>
   </tr>
   <tr>
     <th>Loan End Date</th>
-    <td><%= @loan.date_loan_end.strftime("%d %B %Y") if @loan.date_loan_end %></td>
+    <td><%= @loan.date_loan_end&.strftime("%d %B %Y") %></td>
   </tr>
   <tr>
     <th>Status</th>
@@ -48,39 +50,66 @@
   <tr>
     <th>Approval Status</th>
     <td>
-      <% if @loan.approval_status == "pending" %>
+      <% case @loan.approval_status.to_s
+         when "pending" %>
         <span style="color: red;">Pending Approval</span>
-      <% elsif @loan.approval_status == "loan_officer" %>
+      <% when "loan_officer" %>
         <span style="color: orange;">Approved by Loan Officer</span>
-      <% elsif @loan.approval_status == "secretary" %>
+      <% when "secretary" %>
         <span style="color: blue;">Approved by Secretary</span>
-      <% elsif @loan.approval_status == "chairperson" %>
+      <% when "chairperson" %>
         <span style="color: green;">Approved by Chairperson</span>
-      <% elsif @loan.approval_status == "approved" %>
+      <% when "approved" %>
         <span style="color: green;">Final Approval Granted</span>
-      <% elsif @loan.approval_status == "rejected" %>
+      <% when "rejected" %>
         <span style="color: red;">Rejected</span>
+      <% else %>
+        <%= @loan.approval_status %>
       <% end %>
     </td>
   </tr>
 </table>
 
+<hr>
+
 <div class="action-buttons">
-  <% unless @loan.loan_officer_approved? %>
-    <%= button_to "Approve as Loan Officer", approve_loan_path(@loan, officer: "loan_officer"), method: :patch, class: "btn btn-success" %>
-  <% end %>
-
-  <% if @loan.loan_officer_approved? && !@loan.secretary_approved? %>
-    <%= button_to "Approve as Secretary", approve_loan_path(@loan, officer: "secretary"), method: :patch, class: "btn btn-success" %>
-  <% end %>
-
-  <% if @loan.secretary_approved? && !@loan.chairperson_approved? %>
+  <% if !@loan.loan_officer_approved? %>
+    <%= button_to "Approve as Loan Officer", approve_loan_path(@loan, officer: "loan_officer"), method: :patch %>
+  <% elsif @loan.loan_officer_approved? && !@loan.secretary_approved? %>
+    <%= button_to "Approve as Secretary", approve_loan_path(@loan, officer: "secretary"), method: :patch, class: "btn btn-info" %>
+  <% elsif @loan.secretary_approved? && !@loan.chairperson_approved? %>
     <%= button_to "Approve as Chairperson", approve_loan_path(@loan, officer: "chairperson"), method: :patch, class: "btn btn-success" %>
-  <% end %>
-
-  <% if @loan.chairperson_approved? %>
+  <% elsif @loan.loan_officer_approved? && @loan.secretary_approved? && @loan.chairperson_approved? && @loan.status != "approved" %>
     <%= button_to "Finalize Loan Approval", approve_loan_path(@loan, officer: "approved"), method: :patch, class: "btn btn-primary" %>
   <% end %>
 </div>
 
-<%= link_to "Back to Loans", loans_path, class: "btn btn-primary" %>
+<br>
+
+<%= link_to "Back to Loans", loans_path, class: "btn btn-secondary" %>
+
+<style>
+  .styled-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+  }
+  .styled-table th, .styled-table td {
+    border: 1px solid #ccc;
+    padding: 10px;
+  }
+  .styled-table th {
+    background-color: #f4f4f4;
+  }
+  .btn {
+    padding: 10px 15px;
+    text-decoration: none;
+    border-radius: 5px;
+    margin: 5px;
+  }
+  .btn-warning { background: orange; color: white; }
+  .btn-info { background: #17a2b8; color: white; }
+  .btn-success { background: #28a745; color: white; }
+  .btn-primary { background: #007bff; color: white; }
+  .btn-secondary { background: #6c757d; color: white; }
+</style>

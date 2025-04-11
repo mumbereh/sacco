@@ -1,0 +1,15 @@
+<!-- app/views/member_mailer/loan_status_updated.html.erb -->
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Loan Status Update</title>
+  </head>
+  <body>
+    <h1>Dear <%= @member.name %>,</h1>
+    <p>Your loan application has been updated. Here are the details:</p>
+    <p><strong>Loan Amount:</strong> <%= number_to_currency(@loan.amount) %></p>
+    <p><strong>Loan Status:</strong> <%= @loan.status.capitalize %></p>
+    <p>If you have any questions, please contact us.</p>
+    <p>Best regards,<br>Sacco Team</p>
+  </body>
+</html>

@@ -68,7 +68,7 @@ class Loan < ApplicationRecord
   end
 
   def send_notification
-    MemberMailer.loan_status_updated(self.member).deliver_now
+    MemberMailer.loan_status_updated(self.member, self).deliver_now
   end
 
   def calculate_totals

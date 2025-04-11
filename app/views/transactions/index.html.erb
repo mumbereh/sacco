@@ -22,9 +22,9 @@
         <td>
           <% if transaction.transaction_type == "transfer" %>
             <% if transaction.recipient_account.present? %>
-              <%= transaction.recipient_account.account_number %>
+              <%= transaction.recipient_account_id.account_number %> recipient_account_id
             <% elsif transaction.manual_recipient_account.present? %>
-              <%= transaction.manual_recipient_account %>
+              <%= transaction.recipient_account_id %>
             <% else %>
               N/A
             <% end %>

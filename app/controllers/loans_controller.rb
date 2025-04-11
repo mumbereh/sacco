@@ -3,7 +3,7 @@ class LoansController < ApplicationController
 
   # GET /loans
   def index
-    @loans = Loan.all.order(created_at: :desc)
+    @loans = Loan.order(created_at: :desc)
   end
 
   # GET /loans/new
@@ -15,47 +15,19 @@ class LoansController < ApplicationController
   def create
     @loan = Loan.new(loan_params)
     if @loan.save
-      redirect_to @loan, notice: "Loan application was successfully created."
+      begin
+        LoanMailer.loan_created_email(@loan).deliver_now
+      rescue => e
+        Rails.logger.error("LoanMailer error: #{e.message}")
+        flash[:alert] = "Loan was created, but failed to send email."
+      end
+      redirect_to @loan, notice: "Loan application was successfully created and email sent."
     else
       render :new
     end
   end
 
-  # GET /loans/:id
-  def show
-  end
-
-  # GET /loans/:id/edit
-  def edit
-  end
-
-  # PATCH/PUT /loans/:id
-  def update
-    # When attempting to set status to approved, verify that all approvals are in place.
-    if loan_params[:status] == "approved"
-      if @loan.loan_officer_approved? && @loan.secretary_approved? && @loan.chairperson_approved?
-        if @loan.update(loan_params)
-          flash[:notice] = "Loan approved and processed."
-          redirect_to @loan
-        else
-          flash[:alert] = "Loan update failed."
-          render :edit
-        end
-      else
-        flash[:alert] = "Loan approval must go through all officers (Loan Officer, Secretary, and Chairperson)."
-        render :edit
-      end
-    else
-      if @loan.update(loan_params)
-        flash[:notice] = "Loan updated successfully."
-        redirect_to @loan
-      else
-        render :edit
-      end
-    end
-  end
-
-  # Custom approval action for the loan officers
+  # PATCH /loans/:id/approve
   def approve
     officer = params[:officer].to_sym
 
@@ -64,43 +36,63 @@ class LoansController < ApplicationController
       if @loan.loan_officer_approved?
         flash[:alert] = "Loan Officer has already approved this loan."
       else
-        @loan.update(approval_status: :loan_officer)
-        @loan.send_notification # Send notification after approval
-        flash[:notice] = "Loan approved by Loan Officer."
+        approve_and_notify(:loan_officer, "Loan Officer")
       end
+
     when :secretary
       if !@loan.loan_officer_approved?
         flash[:alert] = "Loan must be approved by Loan Officer first."
       elsif @loan.secretary_approved?
         flash[:alert] = "Secretary has already approved this loan."
       else
-        @loan.update(approval_status: :secretary)
-        @loan.send_notification # Send notification after approval
-        flash[:notice] = "Loan approved by Secretary."
+        approve_and_notify(:secretary, "Secretary")
       end
+
     when :chairperson
       if !@loan.secretary_approved?
         flash[:alert] = "Secretary must approve the loan first."
       elsif @loan.chairperson_approved?
         flash[:alert] = "Chairperson has already approved this loan."
       else
-        @loan.update(approval_status: :chairperson)
-        @loan.send_notification # Send notification after approval
-        flash[:notice] = "Loan approved by Chairperson."
+        approve_and_notify(:chairperson, "Chairperson")
       end
+
     when :approved
       if @loan.loan_officer_approved? && @loan.secretary_approved? && @loan.chairperson_approved?
         @loan.update(status: "approved", approval_status: :approved)
-        @loan.send_notification # Send notification after final approval
-        flash[:notice] = "Loan final approval granted."
+        @loan.send_notification
+        LoanMailer.loan_fully_approved_email(@loan).deliver_now
+        flash[:notice] = "Loan fully approved. Final approval email sent."
       else
         flash[:alert] = "All officers must approve the loan before final approval."
       end
+
     else
       flash[:alert] = "Invalid approval stage."
     end
 
     redirect_to loan_path(@loan)
+  end
+
+  # GET /loans/:id
+  def show; end
+
+  # GET /loans/:id/edit
+  def edit; end
+
+  # PATCH/PUT /loans/:id
+  def update
+    # Checking for approval before updating status
+    if loan_params[:status] == "approved"
+      if @loan.loan_officer_approved? && @loan.secretary_approved? && @loan.chairperson_approved?
+        update_loan("Loan approved and processed.")
+      else
+        flash[:alert] = "Loan approval must go through all officers."
+        render :edit
+      end
+    else
+      update_loan("Loan updated successfully.")
+    end
   end
 
   # DELETE /loans/:id
@@ -116,6 +108,7 @@ class LoansController < ApplicationController
   end
 
   def loan_params
+    # Added :status to the permitted parameters
     params.require(:loan).permit(
       :member_id,
       :loan_type,
@@ -132,5 +125,22 @@ class LoansController < ApplicationController
       :date_loan_taken,
       :date_loan_end
     )
+  end
+
+  def approve_and_notify(approval_key, role)
+    @loan.update(approval_status: approval_key)
+    @loan.send_notification
+    LoanMailer.loan_approved_email(@loan, role).deliver_now
+    flash[:notice] = "Loan approved by #{role} and email sent."
+  end
+
+  def update_loan(success_message)
+    if @loan.update(loan_params)
+      flash[:notice] = success_message
+      redirect_to @loan
+    else
+      flash[:alert] = "Loan update failed."
+      render :edit
+    end
   end
 end

@@ -9,7 +9,7 @@
       </ul>
     </div>
   <% end %>
-
+<h1>New members </h1><br>
   <div class="form-group">
     <%= form.label :member_id, "Select Member", class: "form-label" %>
     <%= form.collection_select :member_id, Member.all, :id, :name, prompt: "Choose a member", class: "form-control", required: true %>
@@ -94,3 +94,5 @@
   // Initial load
   updateTotal();
 </script>
+
+
