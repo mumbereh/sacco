@@ -3,12 +3,13 @@ default: &default
   encoding: unicode
   pool: 5
   username: postgres  # Change if you use a different username
-  password: postgres  # Change if you set a different password
+  password: benplan  # Change if you set a different password
   host: localhost
 
 development:
   <<: *default
   database: banking_system_development
+  password: benplan 
 
 test:
   <<: *default
@@ -18,7 +19,7 @@ production:
   <<: *default
   database: banking_system_production
   username: banking_system
-  password: <%= ENV["BANKING_SYSTEM_DATABASE_PASSWORD"] %> # Use an environment variable for security
+  password: <%= ENV["BANKING_SYSTEM_DATABASE_PASSWORD"] %> 
   url: <%= ENV['DATABASE_URL'] %> # Full connection URL (e.g., for deployment)
 
 

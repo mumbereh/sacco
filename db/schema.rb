@@ -68,7 +68,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_04_10_115652) do
   end
 
   create_table "loans", force: :cascade do |t|
-    t.integer "member_id", null: false
+    t.bigint "member_id", null: false
     t.decimal "amount", null: false
     t.decimal "interest_rate", default: "3.0", null: false
     t.string "status", default: "pending", null: false
@@ -87,6 +87,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_04_10_115652) do
     t.string "repayment_status"
     t.boolean "secretary_approved"
     t.boolean "chairperson_approved"
+    t.index ["member_id"], name: "index_loans_on_member_id"
   end
 
   create_table "members", force: :cascade do |t|
