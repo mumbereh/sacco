@@ -7,7 +7,9 @@
     <tr>
       <th>Loan ID</th>
       <th>Member</th>
+      <th>Loan</th>
       <th>Payment Amount</th>
+      <th>Loan bal</th>
       <th>Payment Date</th>
       <th>Actions</th>
     </tr>
@@ -17,6 +19,7 @@
       <tr>
         <td><%= loan_repayment.loan.id %></td>
         <td><%= loan_repayment.loan.member.name %></td>
+        <td><%= loan.outstanding_balance%></td>
         <td><%= number_to_currency(loan_repayment.payment_amount, unit: "UGX ") %></td>
         <td><%= loan_repayment.payment_date %></td>
         <td>

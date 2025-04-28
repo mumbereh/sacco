@@ -74,7 +74,7 @@ class Loan < ApplicationRecord
   def calculate_totals
     return if amount.nil? || payment_period.nil? || interest_rate.nil?
 
-    interest_amount = (amount * interest_rate / 100.0) * (payment_period / 12.0)
+    interest_amount = (amount * interest_rate / 100.0) * (payment_period )
     self.total_amount_after_deduction = amount + interest_amount
     self.monthly_installment_payment = total_amount_after_deduction / payment_period
   end

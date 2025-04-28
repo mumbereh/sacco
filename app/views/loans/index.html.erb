@@ -18,7 +18,7 @@
       <tr>
         <td><%= loan.member&.name || "N/A" %></td>
         <td><%= loan.loan_type %></td>
-        <td><%= number_to_currency(loan.amount) %></td>
+        <td><%= number_with_delimiter(sprintf("%.2f", loan.amount)) %></td>
         <td><%= loan.interest_rate %></td>
         <th><%= loan.payment_period %></th>
         <td><%= loan.status&.capitalize || "N/A" %></td>

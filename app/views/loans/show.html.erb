@@ -17,7 +17,7 @@
   </tr>
   <tr>
     <th>Amount</th>
-    <td><%= number_to_currency(@loan.amount) %></td>
+    <td><%= number_with_delimiter(sprintf("%.2f", (@loan.amount))) %></td>
   </tr>
   <tr>
     <th>Interest Rate</th>
@@ -29,11 +29,11 @@
   </tr>
   <tr>
     <th>Monthly Installment</th>
-    <td><%= number_to_currency(@loan.monthly_installment_payment) %></td>
+    <td><%= number_with_delimiter(sprintf("%.2f",(@loan.monthly_installment_payment))) %></td>
   </tr>
   <tr>
     <th>Total Payable Amount</th>
-    <td><%= number_to_currency(@loan.total_amount_after_deduction) %></td>
+    <td><%= number_with_delimiter(sprintf("%.2f",(@loan.total_amount_after_deduction))) %></td>
   </tr>
   <tr>
     <th>Loan Start Date</th>
