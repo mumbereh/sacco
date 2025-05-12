@@ -5,7 +5,12 @@ class LoanRepayment < ApplicationRecord
   validates :payment_amount, numericality: { greater_than: 0, message: "must be a positive amount" }
   validates :payment_date, presence: true
 
+  before_validation :set_due_date
   after_create :process_payment
+
+  def set_due_date
+    self.due_date ||= loan.try(:expected_payment_date) || (payment_date + 30.days rescue Date.today + 30.days)
+  end
 
   def process_payment
     outstanding = loan.outstanding_balance
@@ -15,12 +20,15 @@ class LoanRepayment < ApplicationRecord
       raise ActiveRecord::Rollback
     end
 
-    # No need to update total_repaid — it's calculated dynamically
+    # Penalty logic: 4-day grace period
+    if payment_date > (due_date + 4.days)
+      self.penalty_applied = true
+      penalty_amount = (loan.interest_rate * payment_amount / 100).round
+      self.payment_amount += penalty_amount
+      save(validate: false)
+    end
 
-    # Update repayment status
     loan.update_repayment_status
-
-    # Record this repayment as a transaction
     create_repayment_transaction
   end
 
@@ -28,11 +36,9 @@ class LoanRepayment < ApplicationRecord
 
   def create_repayment_transaction
     account = member.account
-
     raise "Account not found for repayment" unless account
 
-    # Ensure description is included in the transaction
-    transaction = Transaction.create!(
+    Transaction.create!(
       account: account,
       member: member,
       amount: payment_amount,

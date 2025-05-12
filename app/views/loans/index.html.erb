@@ -8,6 +8,8 @@
       <th>Amount</th>
       <th>Rate</th>
       <th>Months</th>
+      <th>Installment</th>
+      <th>Total Expected</th>
       <th>Status</th>
       <th>Approval Status</th>
       <th>Actions</th>
@@ -20,31 +22,31 @@
         <td><%= loan.loan_type %></td>
         <td><%= number_with_delimiter(sprintf("%.2f", loan.amount)) %></td>
         <td><%= loan.interest_rate %></td>
-        <th><%= loan.payment_period %></th>
+        <td><%= loan.payment_period %></td>
+        <td><%= loan.monthly_installment_payment %></td>
+        <td><%= loan.total_amount_after_deduction %></td>
         <td><%= loan.status&.capitalize || "N/A" %></td>
         <td>
           <% status = loan.approval_status.to_s %>
-          <%=
-            case status
-            when "pending"
-              content_tag(:span, "Pending", style: "color: red;")
-            when "loan_officer"
-              content_tag(:span, "Loan Officer", style: "color: orange;")
-            when "secretary"
-              content_tag(:span, "Secretary", style: "color: blue;")
-            when "chairperson"
-              content_tag(:span, "Chairperson", style: "color: green;")
-            when "approved"
-              content_tag(:span, "Final", style: "color: green;")
-            else
-              status.titleize
-            end
-          %>
+          <%= case status
+              when "pending"
+                content_tag(:span, "Pending", style: "color: red;")
+              when "loan_officer"
+                content_tag(:span, "Loan Officer", style: "color: orange;")
+              when "secretary"
+                content_tag(:span, "Secretary", style: "color: blue;")
+              when "chairperson"
+                content_tag(:span, "Chairperson", style: "color: green;")
+              when "approved"
+                content_tag(:span, "Final", style: "color: green;")
+              else
+                status.titleize
+              end %>
         </td>
         <td>
           <%= link_to 'Show', loan_path(loan), class: "btn btn-primary" %>
           <%= link_to 'Edit', edit_loan_path(loan), class: "btn btn-warning" %>
-          <%= link_to 'Delete', loan, method: :delete, data: { confirm: 'Are you sure?' }, class: "btn btn-danger" %>
+          <%= link_to 'Delete', loan_path(loan), method: :delete, data: { confirm: 'Are you sure?' }, class: "btn btn-danger" %>
         </td>
       </tr>
     <% end %>
@@ -63,10 +65,12 @@
   .styled-table th, .styled-table td {
     border: 1px solid #ccc;
     padding: 10px;
+    text-align: center;
   }
 
   .styled-table th {
-    background-color: grey;
+    background-color: #555;
+    color: white;
   }
 
   .btn {
@@ -74,10 +78,11 @@
     margin: 2px;
     border-radius: 5px;
     text-decoration: none;
+    display: inline-block;
   }
 
   .btn-primary { background: #007bff; color: white; }
   .btn-warning { background: orange; color: white; }
   .btn-danger { background: red; color: white; }
-  .btn-success { background: green; color: white; margin-top: 20px; display: inline-block; }
+  .btn-success { background: green; color: white; margin-top: 20px; }
 </style>

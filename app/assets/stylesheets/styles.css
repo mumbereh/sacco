@@ -192,3 +192,8 @@ body, h1, h2, h3, h4, h5, h6, p, ul, li, a {
 .sidebar li{
   text-decoration: none;
 }
+
+.aboutSection{
+  padding:12px;
+  border: 1px solid black;
+}

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_04_10_115652) do
+ActiveRecord::Schema[7.2].define(version: 2025_05_11_194717) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -63,12 +63,14 @@ ActiveRecord::Schema[7.2].define(version: 2025_04_10_115652) do
     t.text "note"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.boolean "penalty_applied"
+    t.date "due_date"
     t.index ["loan_id"], name: "index_loan_repayments_on_loan_id"
     t.index ["member_id"], name: "index_loan_repayments_on_member_id"
   end
 
   create_table "loans", force: :cascade do |t|
-    t.bigint "member_id", null: false
+    t.integer "member_id", null: false
     t.decimal "amount", null: false
     t.decimal "interest_rate", default: "3.0", null: false
     t.string "status", default: "pending", null: false
@@ -87,7 +89,6 @@ ActiveRecord::Schema[7.2].define(version: 2025_04_10_115652) do
     t.string "repayment_status"
     t.boolean "secretary_approved"
     t.boolean "chairperson_approved"
-    t.index ["member_id"], name: "index_loans_on_member_id"
   end
 
   create_table "members", force: :cascade do |t|
@@ -146,6 +147,8 @@ ActiveRecord::Schema[7.2].define(version: 2025_04_10_115652) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "description"
+    t.string "manual_recipient_account"
+    t.decimal "balance_after_transaction"
     t.index ["account_id"], name: "index_transactions_on_account_id"
     t.index ["member_id"], name: "index_transactions_on_member_id"
     t.index ["recipient_account_id"], name: "index_transactions_on_recipient_account_id"

@@ -1,7 +1,7 @@
-<%= form_with(model: loan_repayment, local: true) do |form| %>
+<%= form_with(model: loan_repayment, local: true, html: { class: 'p-4 bg-light rounded shadow-sm' }) do |form| %>
   <% if loan_repayment.errors.any? %>
-    <div class="error-messages">
-      <h2><%= pluralize(loan_repayment.errors.count, "error") %> prevented this repayment from being saved:</h2>
+    <div class="alert alert-danger">
+      <h4><%= pluralize(loan_repayment.errors.count, "error") %> prevented this repayment from being saved:</h4>
       <ul>
         <% loan_repayment.errors.full_messages.each do |msg| %>
           <li><%= msg %></li>
@@ -10,31 +10,34 @@
     </div>
   <% end %>
 
-  <div class="form-group">
-    <%= form.label :member_id, "Select Member" %>
-    <%= form.collection_select :member_id, Member.all, :id, :name, prompt: "Choose a Member", class: "form-control", required: true %>
+  <div class="mb-3">
+    <%= form.label :member_id, "Select Member", class: "form-label" %>
+    <%= form.collection_select :member_id, Member.all, :id, :name, prompt: "Choose a Member", class: "form-select", required: true %>
   </div>
 
-  <div class="form-group">
-    <%= form.label :loan_id, "Select Loan" %>
+  <div class="mb-3">
+    <%= form.label :loan_id, "Select Loan", class: "form-label" %>
     <%= form.collection_select :loan_id, Loan.all, :id,
       ->(loan) {
         "##{loan.id} - #{loan.loan_type} (Outstanding: UGX #{number_with_delimiter(loan.outstanding_balance.to_i)})"
       },
-      prompt: "Choose a Loan", class: "form-control", required: true %>
+      prompt: "Choose a Loan", class: "form-select", required: true %>
   </div>
 
-  <div class="form-group">
-    <%= form.label :payment_amount, "Payment Amount (UGX)" %>
+  <div class="mb-3">
+    <%= form.label :payment_amount, "Payment Amount (UGX)", class: "form-label" %>
     <%= form.number_field :payment_amount, step: 1000, min: 0, placeholder: "Enter amount", class: "form-control", required: true %>
   </div>
 
-  <div class="form-group">
-    <%= form.label :payment_date, "Payment Date" %>
-    <%= form.date_select :payment_date, start_year: Date.today.year - 5, end_year: Date.today.year + 5, class: "form-control" %>
+  <div class="mb-3">
+    <%= form.label :payment_date, "Payment Date", class: "form-label" %>
+    <%= form.date_select :payment_date, start_year: Date.today.year - 5, end_year: Date.today.year + 5, class: "form-select" %>
   </div>
 
-  <div class="form-actions mt-3">
+  <%= form.hidden_field :due_date, value: loan_repayment.due_date || Date.today %>
+  <%= form.hidden_field :penalty_applied, value: loan_repayment.penalty_applied || false %>
+
+  <div class="d-grid">
     <%= form.submit "Submit Repayment", class: "btn btn-primary" %>
   </div>
 <% end %>

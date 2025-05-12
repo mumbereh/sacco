@@ -1,105 +1,120 @@
-<%= form_with(model: transaction) do |form| %>
+<%= form_with(model: transaction, local: true) do |form| %>
   <% if transaction.errors.any? %>
-    <div style="color: red">
+    <div id="error_explanation">
       <h2><%= pluralize(transaction.errors.count, "error") %> prohibited this transaction from being saved:</h2>
       <ul>
-        <% transaction.errors.each do |error| %>
-          <li><%= error.full_message %></li>
+        <% transaction.errors.full_messages.each do |msg| %>
+          <li><%= msg %></li>
         <% end %>
       </ul>
     </div>
   <% end %>
 
-  <h2 class="details">Transaction Details</h2>
-
   <div>
-    <%= form.label :member_id, "Member", style: "display: block" %>
-    <%= form.collection_select :member_id, Member.all, :id, :name, { prompt: "Select Member" }, class: "form-control", id: "member_select" %>
+    <%= form.label :member_id %>
+    <%= form.collection_select :member_id, Member.all, :id, :name, prompt: "Select Member" %>
   </div>
 
   <div>
-    <%= form.label :account_id, "Account ID", style: "display: block" %>
-    <%= form.select :account_id, [], { prompt: "Select Member First" }, class: "form-control", id: "account_select", disabled: true %>
+    <%= form.label :account_id, "Source Account" %>
+    <%= form.select :account_id, [], prompt: "Select Member First" %>
   </div>
 
   <div>
-    <%= form.label :transaction_type, "Transaction Type", style: "display: block" %>
-    <%= form.select :transaction_type, ["deposit", "withdraw", "transfer"], { prompt: "Select Transaction Type" }, class: "form-control", id: "transaction_type" %>
+    <%= form.label :transaction_type %>
+    <%= form.select :transaction_type, options_for_select(%w[deposit withdraw transfer], transaction.transaction_type), prompt: "Select Type" %>
   </div>
 
   <div>
-    <%= form.label :recipient_account_id, "Recipient Account", style: "display: block" %>
-    <%= form.select :recipient_account_id, [], { prompt: "Select Recipient Account or Enter Manually" }, class: "form-control", id: "recipient_account_select" %>
-    <input type="text" id="manual_recipient_account" name="manual_recipient_account" class="form-control" placeholder="Enter account manually (if needed)">
+    <%= form.label :amount %>
+    <%= form.number_field :amount, step: 0.01 %>
+  </div>
+
+  <div id="recipient_fields" style="display: none;">
+    <%= form.label :recipient_account_id, "Recipient Account (Select)" %>
+    <%= form.select :recipient_account_id, [], include_blank: true %>
+
+    <%= form.label :manual_recipient_account, "Manual Recipient Account (Fallback)" %>
+    <%= form.text_field :manual_recipient_account, placeholder: "Enter Account Info" %>
   </div>
 
   <div>
-    <%= form.label :amount, "Amount", style: "display: block" %>
-    <%= form.number_field :amount, step: 0.01, class: "form-control" %>
+    <%= form.submit %>
   </div>
 
-  <div>
-    <%= form.submit "Submit Transaction", class: "btn btn-primary" %>
-  </div>
-<% end %>
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const memberSelect = document.querySelector("#transaction_member_id");
+      const accountSelect = document.querySelector("#transaction_account_id");
+      const typeField = document.querySelector("#transaction_transaction_type");
+      const recipientFields = document.querySelector("#recipient_fields");
+      const recipientSelect = document.querySelector("#transaction_recipient_account_id");
 
-<script>
-  document.addEventListener("DOMContentLoaded", function () {
-    var memberSelect = document.getElementById("member_select");
-    var accountSelect = document.getElementById("account_select");
-    var recipientSelect = document.getElementById("recipient_account_select");
-    var manualRecipientInput = document.getElementById("manual_recipient_account");
+      let allAccounts = [];
 
-    // When a member is selected, fetch the account associated with that member.
-    memberSelect.addEventListener("change", function () {
-      var memberId = this.value;
-      if (memberId) {
-        fetch(`/members/${memberId}/account`)
-          .then(response => response.json())
-          .then(data => {
-            accountSelect.innerHTML = "";
-            if (data.account_number) {
-              var option = new Option(data.account_number, data.account_id);
-              accountSelect.appendChild(option);
-              accountSelect.disabled = false;
-            } else {
-              var defaultOption = new Option("No account found", "");
-              accountSelect.appendChild(defaultOption);
-              accountSelect.disabled = true;
-            }
-          })
-          .catch(error => console.error("Error fetching account details:", error));
-      } else {
-        accountSelect.innerHTML = "<option>Select Member First</option>";
-        accountSelect.disabled = true;
-      }
-    });
-
-    // Populate recipient accounts list.
-    function updateRecipientList() {
-      fetch(`/accounts`)
-        .then(response => response.json())
+      // Fetch all accounts once
+      fetch("/accounts.json")
+        .then(res => res.json())
         .then(data => {
-          recipientSelect.innerHTML = "<option>Select Recipient Account or Enter Manually</option>";
-          data.forEach(function (account) {
-            var option = new Option(account.account_number, account.id);
-            recipientSelect.appendChild(option);
+          allAccounts = data;
+        });
+
+      function getMemberAccounts(memberId) {
+        return allAccounts.filter(acc => acc.member_id == memberId);
+      }
+
+      function updateAccountOptions(memberId) {
+        const accounts = getMemberAccounts(memberId);
+        accountSelect.innerHTML = '<option value="">Select Account</option>';
+        accounts.forEach(acc => {
+          accountSelect.innerHTML += `<option value="${acc.id}">${acc.account_number}</option>`;
+        });
+
+        // Auto-fill if only one account
+        if (accounts.length === 1) {
+          accountSelect.value = accounts[0].id;
+        }
+
+        updateRecipientOptions();
+      }
+
+      function updateRecipientOptions() {
+        const transactionType = typeField.value;
+        const sourceAccountId = parseInt(accountSelect.value);
+        const memberId = parseInt(memberSelect.value);
+
+        if (transactionType === "transfer") {
+          recipientFields.style.display = "block";
+
+          const memberAccounts = getMemberAccounts(memberId).map(a => a.id);
+          const filteredAccounts = allAccounts.filter(acc => !memberAccounts.includes(acc.id) && acc.id !== sourceAccountId);
+
+          recipientSelect.innerHTML = '<option value="">Select Account</option>';
+          filteredAccounts.forEach(acc => {
+            recipientSelect.innerHTML += `<option value="${acc.id}">${acc.account_number}</option>`;
           });
-        })
-        .catch(error => console.error("Error fetching recipient accounts:", error));
-    }
-
-    updateRecipientList();
-
-    // On form submit, validate that for transfers a recipient is provided.
-    document.forms[0].addEventListener('submit', function (e) {
-      var transactionType = document.getElementById("transaction_type").value;
-      if (transactionType === "transfer") {
-        if (!recipientSelect.value && !manualRecipientInput.value.trim()) {
-          alert("Please specify a recipient account for transfers.");
-          e.preventDefault();
+        } else {
+          recipientFields.style.display = "none";
         }
       }
+
+      // Event bindings
+      if (memberSelect) {
+        memberSelect.addEventListener("change", () => {
+          updateAccountOptions(memberSelect.value);
+        });
+      }
+
+      if (typeField) {
+        typeField.addEventListener("change", updateRecipientOptions);
+      }
+
+      if (accountSelect) {
+        accountSelect.addEventListener("change", updateRecipientOptions);
+      }
+
+      // Run on load
+      updateRecipientOptions();
     });
-  });
-</script>
+  </script>
+<% end %>

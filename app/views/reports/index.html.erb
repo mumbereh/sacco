@@ -1,0 +1,24 @@
+<h1>Tenant Reports</h1>
+
+<table class="table table-striped">
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Village</th>
+      <th>Next of Kin</th>
+      <th>Room Number</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @tenants.each do |tenant| %>
+      <tr>
+        <td><%= tenant.full_name %></td>
+        <td><%= tenant.village %></td>
+        <td><%= tenant.next_of_kin %></td>
+        <td><%= tenant.room.room_number if tenant.room %></td>
+        <td><%= link_to 'View Report', tenant_report_path(tenant_id: tenant.id), class: 'btn btn-primary' %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>

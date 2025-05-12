@@ -1,0 +1,24 @@
+<!-- app/views/reports/estate_report.html.erb -->
+<h1 class="header">Estate Report</h1>
+
+<% @estate_reports.each do |report| %>
+  <h2><%= report[:estate].name %></h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Month</th>
+        <th>Collected Amount</th>
+        <th>Outstanding Amount</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% report[:monthly_data].each do |month, data| %>
+        <tr>
+          <td><%= month %></td>
+          <td><%= number_to_currency(data[:collected]) %></td>
+          <td><%= number_to_currency(data[:outstanding]) %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+<% end %>
