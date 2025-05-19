@@ -11,7 +11,7 @@
   <% end %>
 
   <div class="mb-3">
-    <%= form.label :member_id, "Select Member", class: "form-label" %>
+    <%= form.label :account_number, "Select Member", class: "form-label" %>
     <%= form.collection_select :member_id, Member.all, :id, :name, prompt: "Choose a Member", class: "form-select", required: true %>
   </div>
 

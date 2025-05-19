@@ -2,6 +2,7 @@ class Transaction < ApplicationRecord
   belongs_to :account
   belongs_to :member
   belongs_to :recipient_account, class_name: "Account", optional: true
+  has_many :reports, as: :reportable
 
   attr_accessor :manual_recipient_account
 

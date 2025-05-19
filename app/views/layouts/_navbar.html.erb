@@ -1,6 +1,5 @@
 <nav class="navbar">
   <div class="container">
-    <!-- Navigation Links -->
     <ul class="nav-links">
       <li><a href="<%= members_path %>">Members</a></li>
       <li><a href="<%= accounts_path %>">Accounts</a></li>
@@ -8,7 +7,15 @@
       <li><a href="<%= loans_path %>">Loans</a></li>
       <li><a href="<%= loan_repayments_path %>">Repayments</a></li>
       <li><a href="<%= dashboard_path %>">Welfare</a></li>
-      <li><a href="<%= dashboard_path %>">Reports</a></li>
-    </ul>
+
+      <li class="dropdown">
+  <a href="#">Reports</a>
+  <ul class="dropdown-menu">
+    <li><a href="<%= general_report_reports_path %>">General Report</a></li>
+    <li><a href="<%= reports_path %>">Member Reports</a></li>
+    <li><a href="<%= transaction_report_reports_path %>">Transaction Reports</a></li>
+    <li><a href="<%= loan_report_reports_path %>">Loan Reports</a></li>
+  </ul>
+</li>
   </div>
 </nav>

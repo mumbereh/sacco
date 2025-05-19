@@ -5,6 +5,8 @@ class Member < ApplicationRecord
 has_many :loans
 has_many :loan_repayments
 has_many :transactions
+has_many :reports, as: :reportable
+
 
 
   REQUIRED_FIELDS = %i[

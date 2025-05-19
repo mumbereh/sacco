@@ -12,6 +12,7 @@ class LoanRepayment < ApplicationRecord
     self.due_date ||= loan.try(:expected_payment_date) || (payment_date + 30.days rescue Date.today + 30.days)
   end
 
+
   def process_payment
     outstanding = loan.outstanding_balance
 
@@ -20,7 +21,7 @@ class LoanRepayment < ApplicationRecord
       raise ActiveRecord::Rollback
     end
 
-    # Penalty logic: 4-day grace period
+    
     if payment_date > (due_date + 4.days)
       self.penalty_applied = true
       penalty_amount = (loan.interest_rate * payment_amount / 100).round

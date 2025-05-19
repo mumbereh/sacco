@@ -1,87 +1,70 @@
 class ReportsController < ApplicationController
+  before_action :set_report, only: %i[ show edit update destroy ]
+
+  # GET /reports or /reports.json
   def index
-    @estates = Estate.all  # Ensure @estates is loaded with all Estate records
-    @tenants = Tenant.includes(:leases, :payments, :room, room: [:estate, :room_type])
-
-    # Apply filters based on parameters if present
-    filter_by_tenant_name if params[:name].present?
-    filter_by_estate_name if params[:estate_name].present?
-    filter_by_payment_status if params[:paid].present?
+    @reports = Report.all
   end
 
-  def tenant_report
-    @tenant = Tenant.find(params[:tenant_id])
-    @leases = @tenant.leases.includes(:payments, :room, room: [:estate, :room_type])
-    @payments = @leases.flat_map(&:payments)
+  # GET /reports/1 or /reports/1.json
+  def show
   end
 
-  def estate_report
-    @estates = Estate.includes(rooms: { tenants: { leases: :payments } })
+  # GET /reports/new
+  def new
+    @report = Report.new
+  end
 
-    @estate_reports = @estates.map do |estate|
-      monthly_data = generate_monthly_data(estate)
-      { estate: estate, monthly_data: monthly_data }
+  # GET /reports/1/edit
+  def edit
+  end
+
+  # POST /reports or /reports.json
+  def create
+    @report = Report.new(report_params)
+
+    respond_to do |format|
+      if @report.save
+        format.html { redirect_to @report, notice: "Report was successfully created." }
+        format.json { render :show, status: :created, location: @report }
+      else
+        format.html { render :new, status: :unprocessable_entity }
+        format.json { render json: @report.errors, status: :unprocessable_entity }
+      end
+    end
+  end
+
+  # PATCH/PUT /reports/1 or /reports/1.json
+  def update
+    respond_to do |format|
+      if @report.update(report_params)
+        format.html { redirect_to @report, notice: "Report was successfully updated." }
+        format.json { render :show, status: :ok, location: @report }
+      else
+        format.html { render :edit, status: :unprocessable_entity }
+        format.json { render json: @report.errors, status: :unprocessable_entity }
+      end
+    end
+  end
+
+  # DELETE /reports/1 or /reports/1.json
+  def destroy
+    @report.destroy!
+
+    respond_to do |format|
+      format.html { redirect_to reports_path, status: :see_other, notice: "Report was successfully destroyed." }
+      format.json { head :no_content }
     end
   end
 
   private
-
-  # Filters tenants by first or last name
-  def filter_by_tenant_name
-    # Ensure the tenant name filter includes the estate data and only selects tenants belonging to estates
-    @tenants = @tenants.joins(room: :estate)
-                       .where("first_name ILIKE ? OR last_name ILIKE ?", "%#{params[:name]}%", "%#{params[:name]}%")
-                       .distinct
-
-    # If a tenant name is provided, filter estates to only those that have matching tenants
-    @estates = Estate.joins(rooms: :tenants)
-                     .where(tenants: { id: @tenants.pluck(:id) })
-  end
-
-  # Filters tenants by estate name
-  def filter_by_estate_name
-    # Ensure that only tenants belonging to the selected estate are shown
-    @tenants = @tenants.joins(room: :estate)
-                       .where("estates.name ILIKE ?", "%#{params[:estate_name]}%")
-                       .distinct
-
-    # Filter estates to only show those that have tenants matching the given estate name
-    @estates = Estate.where("name ILIKE ?", "%#{params[:estate_name]}%")
-  end
-
-  # Filters tenants by payment status for the current month
-  def filter_by_payment_status
-    current_month = Date.today.beginning_of_month..Date.today.end_of_month
-    paid_tenant_ids = Payment.where(payment_date: current_month).pluck(:tenant_id).uniq
-
-    case params[:paid]
-    when 'true'
-      # Only select tenants who have paid this month
-      @tenants = @tenants.where(id: paid_tenant_ids)
-    when 'false'
-      # Only select tenants who have not paid this month
-      @tenants = @tenants.where.not(id: paid_tenant_ids)
+    # Use callbacks to share common setup or constraints between actions.
+    def set_report
+      @report = Report.find(params[:id])
     end
-  end
 
-  # Generates monthly data for each estate in the estate report
-  def generate_monthly_data(estate)
-    monthly_data = {}
-
-    estate.rooms.each do |room|
-      room.tenants.each do |tenant|
-        tenant.leases.each do |lease|
-          lease.payments.each do |payment|
-            month = payment.payment_date.strftime("%B %Y")
-            monthly_data[month] ||= { collected: 0, outstanding: 0 }
-            monthly_data[month][:collected] += payment.amount
-
-            monthly_due = lease.monthly_rent
-            monthly_data[month][:outstanding] += (monthly_due - payment.amount) if payment.amount < monthly_due
-          end
-        end
-      end
+    # Only allow a list of trusted parameters through.
+    def report_params
+      params.require(:report).permit(:title, :content, :report_type, :reportable_id, :reportable_type)
     end
-    monthly_data
-  end
 end

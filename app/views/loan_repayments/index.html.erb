@@ -16,13 +16,14 @@
     <% @loan_repayments.each do |loan_repayment| %>
       <% loan = loan_repayment.loan %>
       <tr>
-        <td>#<%= loan.id %></td>
+        <td>
+        <%= loan.id %></td>
         <td><%= loan.member.name %></td>
         <td><%= loan.loan_type %></td>
         <td><%= number_to_currency(loan_repayment.payment_amount, unit: "UGX ") %></td>
         <td><%= number_to_currency(loan.outstanding_balance, unit: "UGX ") %></td>
         <td><%= loan_repayment.payment_date.strftime("%B %d, %Y") %></td>
-        <td>
+        <td class="flex">
           <%= link_to 'Show', loan_repayment_path(loan_repayment), class: 'btn btn-sm btn-info me-1' %>
           <%= link_to 'Edit', edit_loan_repayment_path(loan_repayment), class: 'btn btn-sm btn-warning me-1' %>
           <%= link_to 'Delete', loan_repayment_path(loan_repayment), method: :delete, data: { confirm: 'Are you sure?' }, class: 'btn btn-sm btn-danger' %>

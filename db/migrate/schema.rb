@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_05_11_194717) do
+ActiveRecord::Schema[7.2].define(version: 2025_05_14_132520) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -54,6 +54,19 @@ ActiveRecord::Schema[7.2].define(version: 2025_05_11_194717) do
     t.string "variation_digest", null: false
     t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
   end
+
+  create_table "general_reports", force: :cascade do |t|
+    t.decimal "total_deposits"
+    t.decimal "total_withdrawals"
+    t.decimal "total_transfers"
+    t.decimal "cleared_loans"
+    t.decimal "uncleared_loans"
+    t.decimal "deposit_balance"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+
 
   create_table "loan_repayments", force: :cascade do |t|
     t.bigint "loan_id", null: false
@@ -157,9 +170,11 @@ ActiveRecord::Schema[7.2].define(version: 2025_05_11_194717) do
   add_foreign_key "accounts", "members"
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "individual_account_reports", "members"
   add_foreign_key "loan_repayments", "loans"
   add_foreign_key "loan_repayments", "members"
   add_foreign_key "loans", "members"
+  add_foreign_key "member_reports", "members"
   add_foreign_key "savings_commitments", "members"
   add_foreign_key "transactions", "accounts"
   add_foreign_key "transactions", "accounts", column: "recipient_account_id"
