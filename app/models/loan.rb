@@ -14,11 +14,17 @@ class Loan < ApplicationRecord
   validates :loan_type, inclusion: { in: ["Business Loan", "School Loan", "Land/House Purchase", "Salary Loan", "Emergency Loan", "Others"], message: "must be a valid loan type" }
   validates :payment_period, numericality: { greater_than: 0, message: "must be greater than zero" }
 
-  enum approval_status: { pending: 0, loan_officer: 1, secretary: 2, chairperson: 3, approved: 4, rejected: 5 }
+  enum approval_status: {
+    pending: 0,
+    loan_officer: 1,
+    secretary: 2,
+    chairperson: 3,
+    approved: 4,
+    rejected: 5
+  }
 
-  after_update :send_notification, if: :saved_change_to_status?
+  after_update :send_status_update_email, if: :saved_change_to_status?
 
-  # Approval check methods
   def loan_officer_approved?
     approval_status >= "loan_officer"
   end
@@ -31,7 +37,6 @@ class Loan < ApplicationRecord
     approval_status >= "chairperson"
   end
 
-  # Approval by each officer
   def approve_by_officer(officer)
     case officer
     when :loan_officer
@@ -46,7 +51,10 @@ class Loan < ApplicationRecord
     end
   end
 
-  # Repaid and outstanding balance calculation
+  def finalize_approval
+    update(status: "approved", approval_status: :approved)
+  end
+
   def total_repaid
     loan_repayments.sum(:payment_amount)
   end
@@ -55,26 +63,26 @@ class Loan < ApplicationRecord
     total_amount_after_deduction.to_f - total_repaid.to_f
   end
 
-  # Update repayment status based on outstanding balance
   def update_repayment_status
     new_status = outstanding_balance <= 0 ? "repaid" : "progress"
     update(repayment_status: new_status) if repayment_status != new_status
   end
 
-  private
-
-  def finalize_approval
-    update(status: "approved", approval_status: :approved)
-  end
-
-  def send_notification
+  def send_status_update_email
     MemberMailer.loan_status_updated(self.member, self).deliver_now
   end
+
+  # <<< HERE IS THE MISSING METHOD TO FIX YOUR ERROR >>>
+  def total_amount
+    total_amount_after_deduction.to_f
+  end
+
+  private
 
   def calculate_totals
     return if amount.nil? || payment_period.nil? || interest_rate.nil?
 
-    interest_amount = (amount * interest_rate / 100.0) * (payment_period )
+    interest_amount = (amount * interest_rate / 100.0) * payment_period
     self.total_amount_after_deduction = amount + interest_amount
     self.monthly_installment_payment = total_amount_after_deduction / payment_period
   end
@@ -83,6 +91,13 @@ class Loan < ApplicationRecord
     self.interest_rate ||= 3
   end
 
+  def approve_and_notify(approval_key, role)
+    @loan.update(approval_status: approval_key)
+    @loan.send_status_update_email  # <-- Correct method
+    LoanMailer.loan_approved_email(@loan, role).deliver_now
+    flash[:notice] = "Loan approved by #{role} and email sent."
+  end
+  
   def update_approval_status
     self.status = "processing" if approval_status_changed? && approval_status == "loan_officer"
   end

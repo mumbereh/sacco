@@ -40,9 +40,9 @@ has_many :reports, as: :reportable
   validate :validate_passport_photo
   validate :validate_id_document_photo
 
-  def name
-    [surname, given_name, other_name].reject(&:blank?).join(" ")
-  end
+ def full_name
+  [surname, given_name, other_name].compact.join(' ')
+end
 
   private
 

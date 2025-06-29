@@ -18,7 +18,7 @@
       <% @accounts.each do |account| %>
         <tr>
           <td><%= account.account_number %></td>
-          <td><%= account.member.name %></td>
+          <td><%= account.member.full_name %></td>
           <td><%= account.member.membership_type %></td>
           <td><%= account.account_type %></td>
           <td><%= number_to_currency(account.balance, unit: "UGX ") %></td>

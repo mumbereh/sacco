@@ -1,0 +1,40 @@
+<h1>New Loan Repayment</h1>
+
+<%= form_with(model: @loan_repayment, local: true) do |form| %>
+  <% if @loan_repayment.errors.any? %>
+    <div class="alert alert-danger">
+      <h4><%= pluralize(@loan_repayment.errors.count, "error") %> prevented this repayment from being saved:</h4>
+      <ul>
+        <% @loan_repayment.errors.full_messages.each do |msg| %>
+          <li><%= msg %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="mb-3">
+    <%= form.label :member_id, "Select Member" %>
+    <%= form.collection_select :member_id, Member.all, :id, :full_name, prompt: "Choose a Member", required: true %>
+  </div>
+
+  <div class="mb-3">
+    <%= form.label :loan_id, "Select Loan" %>
+    <%= form.collection_select :loan_id, Loan.all, :id, :loan_type, prompt: "Choose a Loan", required: true %>
+  </div>
+
+  <div class="mb-3">
+    <%= form.label :payment_amount, "Payment Amount (UGX)" %>
+    <%= form.number_field :payment_amount, required: true %>
+  </div>
+
+  <div class="mb-3">
+    <%= form.label :payment_date, "Payment Date" %>
+    <%= form.date_select :payment_date, required: true %>
+  </div>
+
+  <%= form.hidden_field :due_date, value: @loan_repayment.due_date || Date.today %>
+  <%= form.hidden_field :penalty_applied, value: @loan_repayment.penalty_applied || false %>
+
+  <!-- ✅ Submit Button -->
+  <%= form.submit "Submit Repayment", class: "btn btn-primary" %>
+<% end %>

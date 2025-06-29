@@ -1,13 +1,18 @@
 Rails.application.routes.draw do
-  # Reports with custom actions
+  resources :member_reports
+  resources :transaction_reports
+  # Dashboard
+  root "dashboard#index"
+  get 'dashboard', to: 'dashboard#index'
+
+  # Loan Reports
+  resources :loan_reports, only: [:index]
+
+  # Other Reports
   resources :reports do
     collection do
       get :general_report
       get :transaction_report
-      get :loan_report
-    end
-
-    member do
       get :member_report
     end
   end
@@ -15,14 +20,8 @@ Rails.application.routes.draw do
   # Loan Repayments
   resources :loan_repayments
 
-  # Dashboard
-  get 'dashboard', to: 'dashboard#index'
-
-  # Members and their related resources
+  # Members and nested resources
   resources :members do
-    member do
-      get "index"  # Consider renaming this to 'show' for RESTful clarity
-    end
     resources :accounts
     resources :loans
     resources :transactions
@@ -32,11 +31,8 @@ Rails.application.routes.draw do
   resources :accounts
   resources :loans do
     member do
-      patch :approve, to: 'loans#approve', as: 'approve'
+      patch :approve
     end
   end
   resources :transactions
-
-  # Root path
-  root "dashboard#index"
 end

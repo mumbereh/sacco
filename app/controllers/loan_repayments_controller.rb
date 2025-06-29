@@ -2,10 +2,11 @@ class LoanRepaymentsController < ApplicationController
   before_action :set_loan_repayment, only: %i[show edit update destroy]
 
   def index
-    @loan_repayments = LoanRepayment.all
+    @loan_repayments = LoanRepayment.includes(loan: :member).order(created_at: :desc)
   end
 
-  def show; end
+  def show
+  end
 
   def new
     @loan_repayment = LoanRepayment.new
@@ -13,32 +14,30 @@ class LoanRepaymentsController < ApplicationController
 
   def create
     @loan_repayment = LoanRepayment.new(loan_repayment_params)
-    
+
     if @loan_repayment.save
       flash[:notice] = "Repayment successfully recorded."
-      redirect_to loan_path(@loan_repayment.loan)
+      redirect_to loan_repayments_path   # Redirect to index after creation
     else
-      flash.now[:alert] = "Error: #{@loan_repayment.errors.full_messages.join(", ")}"
+      flash.now[:alert] = "Error: #{@loan_repayment.errors.full_messages.join(', ')}"
       render :new
     end
   end
 
-  def edit; end
+  def edit
+  end
 
   def update
     if @loan_repayment.update(loan_repayment_params)
-      update_loan_repayment_status(@loan_repayment.loan)
-      redirect_to loan_path(@loan_repayment.loan), notice: 'Loan repayment was successfully updated.'
+      redirect_to loan_repayments_path, notice: 'Loan repayment was successfully updated.'
     else
       render :edit
     end
   end
 
   def destroy
-    loan = @loan_repayment.loan
     @loan_repayment.destroy
-    update_loan_repayment_status(loan)
-    redirect_to loan_path(loan), notice: 'Loan repayment was successfully deleted.'
+    redirect_to loan_repayments_path, notice: 'Loan repayment was successfully deleted.'
   end
 
   private
@@ -49,13 +48,5 @@ class LoanRepaymentsController < ApplicationController
 
   def loan_repayment_params
     params.require(:loan_repayment).permit(:loan_id, :member_id, :payment_amount, :payment_date, :due_date, :penalty_applied)
-  end
-
-  def update_loan_repayment_status(loan)
-    if loan.outstanding_balance <= 0
-      loan.update(repayment_status: "Repaid")
-    else
-      loan.update(repayment_status: "Ongoing")
-    end
   end
 end

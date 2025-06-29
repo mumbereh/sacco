@@ -1,0 +1,11 @@
+<% content_for :title, "New loan report" %>
+
+<h1>New loan report</h1>
+
+<%= render "form", loan_report: @loan_report %>
+
+<br>
+
+<div>
+  <%= link_to "Back to loan reports", loan_reports_path %>
+</div>

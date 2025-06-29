@@ -17,7 +17,7 @@ class TransactionReportsControllerTest < ActionDispatch::IntegrationTest
 
   test "should create transaction_report" do
     assert_difference("TransactionReport.count") do
-      post transaction_reports_url, params: { transaction_report: { total_balance: @transaction_report.total_balance, total_deposits: @transaction_report.total_deposits, total_transfers: @transaction_report.total_transfers, total_withdrawals: @transaction_report.total_withdrawals } }
+      post transaction_reports_url, params: { transaction_report: { from: @transaction_report.from, to: @transaction_report.to } }
     end
 
     assert_redirected_to transaction_report_url(TransactionReport.last)
@@ -34,7 +34,7 @@ class TransactionReportsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "should update transaction_report" do
-    patch transaction_report_url(@transaction_report), params: { transaction_report: { total_balance: @transaction_report.total_balance, total_deposits: @transaction_report.total_deposits, total_transfers: @transaction_report.total_transfers, total_withdrawals: @transaction_report.total_withdrawals } }
+    patch transaction_report_url(@transaction_report), params: { transaction_report: { from: @transaction_report.from, to: @transaction_report.to } }
     assert_redirected_to transaction_report_url(@transaction_report)
   end
 

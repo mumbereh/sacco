@@ -11,8 +11,8 @@
   <% end %>
 
   <div class="mb-3">
-    <%= form.label :account_number, "Select Member", class: "form-label" %>
-    <%= form.collection_select :member_id, Member.all, :id, :name, prompt: "Choose a Member", class: "form-select", required: true %>
+    <%= form.label :member_id, "Select Member", class: "form-label" %>
+    <%= form.collection_select :member_id, Member.all, :id, :full_name, prompt: "Choose a Member", class: "form-select", required: true %>
   </div>
 
   <div class="mb-3">
@@ -22,6 +22,11 @@
         "##{loan.id} - #{loan.loan_type} (Outstanding: UGX #{number_with_delimiter(loan.outstanding_balance.to_i)})"
       },
       prompt: "Choose a Loan", class: "form-select", required: true %>
+  </div>
+
+  <div class="mb-3">
+    <label class="form-label">Outstanding Balance</label>
+    <input type="text" id="outstanding-balance-display" class="form-control" disabled>
   </div>
 
   <div class="mb-3">
@@ -41,3 +46,20 @@
     <%= form.submit "Submit Repayment", class: "btn btn-primary" %>
   </div>
 <% end %>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const loanSelect = document.querySelector("#loan_repayment_loan_id");
+    const balanceDisplay = document.querySelector("#outstanding-balance-display");
+    const loanData = <%= raw Loan.all.map { |loan| [loan.id, loan.outstanding_balance.to_i] }.to_h.to_json %>;
+
+    loanSelect.addEventListener("change", function () {
+      const selectedId = this.value;
+      if (loanData[selectedId]) {
+        balanceDisplay.value = "UGX " + loanData[selectedId].toLocaleString();
+      } else {
+        balanceDisplay.value = "";
+      }
+    });
+  });
+</script>

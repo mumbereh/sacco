@@ -17,7 +17,7 @@
     <% @members.each_with_index do |member, index| %>
       <tr>
         <td><%= index + 1 %></td>
-        <td><%= member.name.titleize %></td>
+        <td><%= member.full_name.titleize %></td>
         <td><%= member.membership_type %></td>
         <td><%= member.date_of_birth.strftime("%d-%m-%Y") if member.date_of_birth %></td>
         <td><%= member.gender.capitalize %></td>

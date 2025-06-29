@@ -19,7 +19,7 @@
     <% @transactions.each do |t| %>
       <tr>
         <td><%= t.id %></td>
-        <td><%= t.member&.name || "N/A" %></td>
+        <td><%= t.member&.full_name || "N/A" %></td>
         <td><%= t.account&.account_number || "N/A" %></td>
         <td><%= t.transaction_type.capitalize %></td>
         <td><%= number_to_currency(t.amount, unit: "UGX ") %></td>
