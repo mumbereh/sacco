@@ -14,7 +14,7 @@
 
   <div>
     <%= form.label :member_id, "Select Member", style: "display: block" %>
-    <%= form.collection_select :member_id, Member.all, :id, :name, { prompt: "Select Member" }, class: "form-control", required: true %>
+    <%= form.collection_select :member_id, Member.all, :id, :full_name, { prompt: "Select Member" }, class: "form-control", required: true %>
   </div>
 
   <div>
