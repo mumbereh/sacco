@@ -1,2 +1,17 @@
-<h1>Congratulations <%= @member.full_name %>,</h1>
-<p>Your loan has been fully approved and is ready for disbursement.</p>
+<!DOCTYPE html>
+<html>
+  <body>
+    <h2>Hello <%= @member.full_name rescue @member.name || 'Member' %>,</h2>
+    <p>We are pleased to inform you that your loan application has been <strong>fully approved</strong>.</p>
+    <p><strong>Loan Details:</strong></p>
+    <ul>
+      <li><strong>Amount:</strong> <%= number_to_currency(@loan.amount) %></li>
+      <li><strong>Type:</strong> <%= @loan.loan_type %></li>
+      <li><strong>Payment Period:</strong> <%= @loan.payment_period %> months</li>
+      <li><strong>Total Payable:</strong> <%= number_to_currency(@loan.total_amount_after_deduction) %></li>
+      <li><strong>Status:</strong> <%= @loan.status.titleize %></li>
+    </ul>
+    <p>Thank you for trusting our services.</p>
+    <p><em>Sincerely,<br>SACCO Loan Department</em></p>
+  </body>
+</html>

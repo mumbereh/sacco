@@ -1,0 +1,68 @@
+<h1 class="mb-4">Transaction Report Details</h1>
+
+<p><strong>Report ID:</strong> <%= @transaction_report.id %></p>
+<p><strong>From:</strong> <%= @transaction_report.from %></p>
+<p><strong>To:</strong> <%= @transaction_report.to %></p>
+<p><strong>Created At:</strong> <%= l(@transaction_report.created_at, format: :long) %></p>
+
+<h2 class="mt-4">Transactions</h2>
+
+<% if @transactions.present? %>
+  <table class="styled-table">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Type</th>
+        <th>Amount</th>
+        <th>Member</th>
+        <th>Source Account</th>
+        <th>Recipient Account</th>
+        <th>Balance After</th>
+        <th>Date</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @transactions.each do |txn| %>
+        <tr>
+          <td><%= txn.id %></td>
+          <td><%= txn.transaction_type.capitalize %></td>
+          <td><%= number_to_currency(txn.amount, unit: "UGX ") %></td>
+          <td><%= txn.member&.full_name || "N/A" %></td>
+          <td><%= txn.account&.account_number || "N/A" %></td>
+          <td>
+            <% if txn.recipient_account.present? %>
+              <%= txn.recipient_account.account_number %>
+            <% elsif txn.manual_recipient_account.present? %>
+              <%= txn.manual_recipient_account %>
+            <% else %>
+              -
+            <% end %>
+          </td>
+          <td><%= number_to_currency(txn.balance_after_transaction, unit: "UGX ") %></td>
+          <td><%= l(txn.created_at, format: :short) %></td>
+        </tr>
+      <% end %>
+    </tbody>
+    <tfoot>
+      <tr>
+        <th colspan="2">Total Deposit</th>
+        <th><%= number_to_currency(@transactions.select { |t| t.transaction_type == "deposit" }.sum(&:amount), unit: "UGX ") %></th>
+        <th colspan="5"></th>
+      </tr>
+      <tr>
+        <th colspan="2">Total Withdraw</th>
+        <th><%= number_to_currency(@transactions.select { |t| t.transaction_type == "withdraw" }.sum(&:amount), unit: "UGX ") %></th>
+        <th colspan="5"></th>
+      </tr>
+      <tr>
+        <th colspan="2">Total Transfer</th>
+        <th><%= number_to_currency(@transactions.select { |t| t.transaction_type == "transfer" }.sum(&:amount), unit: "UGX ") %></th>
+        <th colspan="5"></th>
+      </tr>
+    </tfoot>
+  </table>
+<% else %>
+  <p>No transactions found for this report.</p>
+<% end %>
+
+<%= link_to "Back to Reports", transaction_reports_path, class: "btn btn-secondary mt-4" %>

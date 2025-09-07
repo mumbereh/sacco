@@ -1,0 +1,21 @@
+<h1 class="mb-4">Generate Member Report</h1>
+
+<%= form_with(model: @member_report, local: true) do |form| %>
+  <% if @member_report.errors.any? %>
+    <div class="alert alert-danger">
+      <h4><%= pluralize(@member_report.errors.count, "error") %> prevented this report from being saved:</h4>
+      <ul>
+        <% @member_report.errors.full_messages.each do |msg| %>
+          <li><%= msg %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="mb-3">
+    <%= form.label :member_id, "Select Member", class: "form-label" %>
+    <%= form.collection_select :member_id, Member.all, :id, :full_name, { prompt: "Choose Member" }, class: "form-control" %>
+  </div>
+
+  <%= form.submit "Generate Report", class: "btn btn-primary" %>
+<% end %>

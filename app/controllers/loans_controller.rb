@@ -1,17 +1,14 @@
 class LoansController < ApplicationController
   before_action :set_loan, only: [:show, :edit, :update, :destroy, :approve]
 
-  # GET /loans
   def index
     @loans = Loan.order(created_at: :desc)
   end
 
-  # GET /loans/new
   def new
     @loan = Loan.new
   end
 
-  # POST /loans
   def create
     @loan = Loan.new(loan_params)
     if @loan.save
@@ -27,7 +24,6 @@ class LoansController < ApplicationController
     end
   end
 
-  # PATCH /loans/:id/approve
   def approve
     officer = params[:officer].to_sym
 
@@ -36,7 +32,7 @@ class LoansController < ApplicationController
       if @loan.loan_officer_approved?
         flash[:alert] = "Loan Officer has already approved this loan."
       else
-        approve_and_notify(:loan_officer, "Loan Officer")
+        approve_and_notify(:loan_officer_approved, "Loan Officer")
       end
 
     when :secretary
@@ -45,7 +41,7 @@ class LoansController < ApplicationController
       elsif @loan.secretary_approved?
         flash[:alert] = "Secretary has already approved this loan."
       else
-        approve_and_notify(:secretary, "Secretary")
+        approve_and_notify(:secretary_approved, "Secretary")
       end
 
     when :chairperson
@@ -54,17 +50,8 @@ class LoansController < ApplicationController
       elsif @loan.chairperson_approved?
         flash[:alert] = "Chairperson has already approved this loan."
       else
-        approve_and_notify(:chairperson, "Chairperson")
-      end
-
-    when :approved
-      if @loan.loan_officer_approved? && @loan.secretary_approved? && @loan.chairperson_approved?
-        @loan.update(status: "approved", approval_status: :approved)
-        @loan.send_notification
-        LoanMailer.loan_fully_approved_email(@loan).deliver_now
-        flash[:notice] = "Loan fully approved. Final approval email sent."
-      else
-        flash[:alert] = "All officers must approve the loan before final approval."
+        approve_and_notify(:chairperson_approved, "Chairperson")
+        finalize_approval if @loan.loan_officer_approved? && @loan.secretary_approved?
       end
 
     else
@@ -74,15 +61,11 @@ class LoansController < ApplicationController
     redirect_to loan_path(@loan)
   end
 
-  # GET /loans/:id
   def show; end
 
-  # GET /loans/:id/edit
   def edit; end
 
-  # PATCH/PUT /loans/:id
   def update
-    # Checking for approval before updating status
     if loan_params[:status] == "approved"
       if @loan.loan_officer_approved? && @loan.secretary_approved? && @loan.chairperson_approved?
         update_loan("Loan approved and processed.")
@@ -95,7 +78,6 @@ class LoansController < ApplicationController
     end
   end
 
-  # DELETE /loans/:id
   def destroy
     @loan.destroy
     redirect_to loans_path, notice: "Loan deleted."
@@ -108,7 +90,6 @@ class LoansController < ApplicationController
   end
 
   def loan_params
-    # Added :status to the permitted parameters
     params.require(:loan).permit(
       :member_id,
       :loan_type,
@@ -127,11 +108,20 @@ class LoansController < ApplicationController
     )
   end
 
-  def approve_and_notify(approval_key, role)
-    @loan.update(approval_status: approval_key)
+  def approve_and_notify(attribute, role)
+    @loan.update(attribute => true, approval_status: role.downcase)
     @loan.send_notification
     LoanMailer.loan_approved_email(@loan, role).deliver_now
     flash[:notice] = "Loan approved by #{role} and email sent."
+  end
+
+  def finalize_approval
+    if @loan.chairperson_approved?
+      @loan.update(status: "approved", approval_status: "fully_approved")
+      @loan.send_notification
+      LoanMailer.loan_fully_approved_email(@loan).deliver_now
+      flash[:notice] = "Loan fully approved. Final approval email sent."
+    end
   end
 
   def update_loan(success_message)

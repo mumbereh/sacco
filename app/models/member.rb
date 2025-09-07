@@ -5,6 +5,8 @@ class Member < ApplicationRecord
 has_many :loans
 has_many :loan_repayments
 has_many :transactions
+has_many :reports, as: :reportable
+
 
 
   REQUIRED_FIELDS = %i[
@@ -38,9 +40,9 @@ has_many :transactions
   validate :validate_passport_photo
   validate :validate_id_document_photo
 
-  def name
-    [surname, given_name, other_name].reject(&:blank?).join(" ")
-  end
+ def full_name
+  [surname, given_name, other_name].compact.join(' ')
+end
 
   private
 

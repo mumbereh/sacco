@@ -1,0 +1,25 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  loan: one
+  member_name: MyString
+  amount: 9.99
+  interest_rate: 9.99
+  total_amount_after_deduction: 9.99
+  repayment_status: MyString
+  approval_status: MyString
+  status: MyString
+  total_repaid: 9.99
+  outstanding_balance: 9.99
+
+two:
+  loan: two
+  member_name: MyString
+  amount: 9.99
+  interest_rate: 9.99
+  total_amount_after_deduction: 9.99
+  repayment_status: MyString
+  approval_status: MyString
+  status: MyString
+  total_repaid: 9.99
+  outstanding_balance: 9.99

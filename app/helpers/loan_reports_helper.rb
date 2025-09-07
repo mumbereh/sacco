@@ -1,0 +1,2 @@
+module LoanReportsHelper
+end

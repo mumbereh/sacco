@@ -1,0 +1,10 @@
+<p style="color: green"><%= notice %></p>
+
+<%= render @loan_report %>
+
+<div>
+  <%= link_to "Edit this loan report", edit_loan_report_path(@loan_report) %> |
+  <%= link_to "Back to loan reports", loan_reports_path %>
+
+  <%= button_to "Destroy this loan report", @loan_report, method: :delete %>
+</div>

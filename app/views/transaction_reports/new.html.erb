@@ -1,0 +1,26 @@
+<h1 class="mb-4">New Transaction Report</h1>
+
+<%= form_with(model: @transaction_report, local: true) do |form| %>
+  <% if @transaction_report.errors.any? %>
+    <div class="alert alert-danger">
+      <h4><%= pluralize(@transaction_report.errors.count, "error") %> prevented this report from being generated:</h4>
+      <ul>
+        <% @transaction_report.errors.full_messages.each do |msg| %>
+          <li><%= msg %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="mb-3">
+    <%= form.label :from, "Start Date" %>
+    <%= form.date_select :from, required: true, start_year: 2020, end_year: Date.today.year %>
+  </div>
+
+  <div class="mb-3">
+    <%= form.label :to, "End Date" %>
+    <%= form.date_select :to, required: true, start_year: 2020, end_year: Date.today.year %>
+  </div>
+
+  <%= form.submit "Generate Report", class: "btn btn-primary" %>
+<% end %>

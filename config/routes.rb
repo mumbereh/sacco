@@ -1,30 +1,38 @@
 Rails.application.routes.draw do
-  # Loan Repayments
-  resources :loan_repayments
-  
+  resources :member_reports
+  resources :transaction_reports
   # Dashboard
+  root "dashboard#index"
   get 'dashboard', to: 'dashboard#index'
 
-  # Members and their related resources
-  resources :members do
-    member do
-      get "index"  # Individual member profile
+  # Loan Reports
+  resources :loan_reports, only: [:index]
+
+  # Other Reports
+  resources :reports do
+    collection do
+      get :general_report
+      get :transaction_report
+      get :member_report
     end
+  end
+
+  # Loan Repayments
+  resources :loan_repayments
+
+  # Members and nested resources
+  resources :members do
     resources :accounts
     resources :loans
     resources :transactions
   end
 
-  # Standalone resources
+  # Standalone Resources
   resources :accounts
   resources :loans do
-    # Define a custom route for loan approval actions
     member do
-      patch :approve, to: 'loans#approve', as: 'approve'
+      patch :approve
     end
   end
   resources :transactions
-
-  # Root path
-  root "dashboard#index"
 end

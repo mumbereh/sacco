@@ -13,8 +13,8 @@
   <h2 class="details">Loan Application</h2>
 
   <div>
-    <%= form.label :client, "Select Member", style: "display: block" %>
-    <%= form.collection_select :member_id, Member.all, :id, :name, prompt: "Select Member", class: "form-control", required: true %>
+    <%= form.label :member_id, "Select Member", style: "display: block" %>
+    <%= form.collection_select :member_id, Member.all, :id, :full_name, { prompt: "Select Member" }, class: "form-control", required: true %>
   </div>
 
   <div>
@@ -49,22 +49,22 @@
 
   <div>
     <%= form.label :status, "Loan Status", style: "display: block" %>
-    <%= form.select :status, ["pending", "processing", "approved", "rejected", "repaid"], {}, class: "form-control", required: true, disabled: true, id: "loan_status" %>
+    <%= form.select :status, ["pending", "processing", "approved", "rejected", "repaid"], {}, class: "form-control", disabled: true, id: "loan_status" %>
   </div>
 
   <div>
     <%= form.label :loan_officer_approval, "Loan Officer Approval", style: "display: block" %>
-    <%= form.select :loan_officer_approval, [["Pending", "pending"], ["Approved", "approved"]], {}, class: "form-control", required: true, id: "loan_loan_officer_approval" %>
+    <%= form.select :loan_officer_approval, [["Pending", "pending"], ["Approved", "approved"]], {}, class: "form-control", id: "loan_loan_officer_approval", required: true %>
   </div>
 
   <div>
     <%= form.label :secretary_approval, "Secretary Approval", style: "display: block" %>
-    <%= form.select :secretary_approval, [["Pending", "pending"], ["Approved", "approved"]], { prompt: "Select Approval" }, class: "form-control", required: true, disabled: true, id: "loan_secretary_approval" %>
+    <%= form.select :secretary_approval, [["Pending", "pending"], ["Approved", "approved"]], { prompt: "Select Approval" }, class: "form-control", id: "loan_secretary_approval", required: true, disabled: true %>
   </div>
 
   <div>
     <%= form.label :chairperson_approval, "Chairperson Approval", style: "display: block" %>
-    <%= form.select :chairperson_approval, [["Pending", "pending"], ["Approved", "approved"]], { prompt: "Select Approval" }, class: "form-control", required: true, disabled: true, id: "loan_chairperson_approval" %>
+    <%= form.select :chairperson_approval, [["Pending", "pending"], ["Approved", "approved"]], { prompt: "Select Approval" }, class: "form-control", id: "loan_chairperson_approval", required: true, disabled: true %>
   </div>
 
   <div>
@@ -123,28 +123,18 @@
       const secApproved = secretaryApproval.value === 'approved';
       const chairApproved = chairpersonApproval.value === 'approved';
 
-      if (loApproved) {
-        secretaryApproval.disabled = false;
-      } else {
-        secretaryApproval.disabled = true;
-        secretaryApproval.value = "pending";
-        chairpersonApproval.disabled = true;
-        chairpersonApproval.value = "pending";
-      }
+      secretaryApproval.disabled = !loApproved;
+      if (!loApproved) secretaryApproval.value = 'pending';
 
-      if (loApproved && secApproved) {
-        chairpersonApproval.disabled = false;
-      } else {
-        chairpersonApproval.disabled = true;
-        chairpersonApproval.value = "pending";
-      }
+      chairpersonApproval.disabled = !(loApproved && secApproved);
+      if (!(loApproved && secApproved)) chairpersonApproval.value = 'pending';
 
       if (loApproved && secApproved && chairApproved) {
-        statusSelect.value = "approved";
+        statusSelect.value = 'approved';
       } else if (loApproved) {
-        statusSelect.value = "processing";
+        statusSelect.value = 'processing';
       } else {
-        statusSelect.value = "pending";
+        statusSelect.value = 'pending';
       }
     }
 

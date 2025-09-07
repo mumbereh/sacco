@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Member Report</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, sans-serif;
+      background-color: #f4f7fa;
+      color: #333;
+      margin: 20px;
+    }
+
+    h1.title {
+      text-align: center;
+      font-size: 2rem;
+      margin-bottom: 2rem;
+      color: #004080;
+    }
+
+    .card-section {
+      background-color: #fff;
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 30px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    }
+
+    .card-title {
+      font-size: 1.3rem;
+      margin-bottom: 1rem;
+      color: #1d3557;
+      border-bottom: 1px solid #ccc;
+      padding-bottom: 5px;
+    }
+
+    .card-body p {
+      margin-bottom: 10px;
+    }
+
+    .styled-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 15px;
+    }
+
+    .styled-table th,
+    .styled-table td {
+      border: 1px solid #ccc;
+      padding: 10px 15px;
+      text-align: left;
+    }
+
+    .styled-table thead {
+      background-color: #e7eff6;
+    }
+
+    # .tag {
+    #   display: inline-block;
+    #   padding: 4px 10px;
+    #   border-radius: 12px;
+    #   font-size: 0.85rem;
+    #   font-weight: bold;
+    #   color: white;
+    #   text-align: center;
+    # }
+
+    # .tag.deposit { background-color: #198754; }
+    # .tag.withdraw { background-color: #dc3545; }
+    # .tag.transfer { background-color: #0dcaf0; }
+
+    .status-approved { background-color: #28a745; }
+    .status-pending, .status-processing { background-color: #ffc107; color: #000; }
+    .status-rejected { background-color: #dc3545; }
+
+    .empty-note {
+      font-style: italic;
+      color: #999;
+    }
+
+    .back-button {
+      text-align: center;
+      margin-top: 30px;
+    }
+
+    .btn-back {
+      background-color: #007bff;
+      padding: 10px 20px;
+      color: white;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    .btn-back:hover {
+      background-color: #0056b3;
+    }
+  </style>
+</head>
+
+<body>
+  <h1 class="title">Member Financial Report</h1>
+
+  <div class="card-section">
+    <h2 class="card-title">Member Details</h2>
+    <div class="card-body">
+      <p><strong>Name:</strong> <%= @member.full_name %></p>
+      <p><strong>Phone:</strong> <%= @member.phone %></p>
+      <p><strong>Email:</strong> <%= @member.email %></p>
+      <p><strong>Address:</strong> <%= [@member.village, @member.parish, @member.subcounty, @member.district].compact.join(', ') %></p>
+    </div>
+  </div>
+
+  <div class="card-section">
+    <h2 class="card-title">Transaction History</h2>
+    <div class="card-body">
+      <% if @transactions.any? %>
+        <table class="styled-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Type</th>
+              <th>Amount (UGX)</th>
+              <th>Account</th>
+              <th>Date</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% @transactions.each do |txn| %>
+              <tr>
+                <td><%= txn.id %></td>
+                <td class="tag <%= txn.transaction_type %>"><%= txn.transaction_type.capitalize %></td>
+                <td><%= number_to_currency(txn.amount, unit: "UGX ") %></td>
+                <td><%= txn.account&.account_number || 'N/A' %></td>
+                <td><%= txn.created_at.strftime("%d %b %Y") %></td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      <% else %>
+        <p class="empty-note">No transactions available for this member.</p>
+      <% end %>
+    </div>
+  </div>
+
+  <div class="card-section">
+    <h2 class="card-title">Loan Records</h2>
+    <div class="card-body">
+      <% if @loans.any? %>
+        <table class="styled-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Type</th>
+              <th>Total Loan</th>
+              <th>Status</th>
+              <th>Start Date</th>
+              <th>Repaid</th>
+              <th>Balance</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% @loans.each do |loan| %>
+              <tr>
+                <td><%= loan.id %></td>
+                <td><%= loan.loan_type %></td>
+                <td><%= number_to_currency(loan.total_amount_after_deduction, unit: "UGX ") %></td>
+                <td class="tag status-<%= loan.status %>"><%= loan.status.titleize %></td>
+                <td><%= loan.date_loan_taken.strftime("%d %b %Y") %></td>
+                <td><%= number_to_currency(loan.loan_repayments.sum(&:payment_amount), unit: "UGX ") %></td>
+                <td><%= number_to_currency(loan.outstanding_balance, unit: "UGX ") %></td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      <% else %>
+        <p class="empty-note">No loans found for this member.</p>
+      <% end %>
+    </div>
+  </div>
+
+  <div class="back-button">
+    <%= link_to "← Back to Reports", member_reports_path, class: "btn-back" %>
+  </div>
+</body>
+</html>

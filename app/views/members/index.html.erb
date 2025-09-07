@@ -10,29 +10,61 @@
       <th>Gender</th>
       <th>Phone</th>
       <th>Next of Kin</th>
-      <th>Actions</th>
     </tr>
   </thead>
   <tbody>
     <% @members.each_with_index do |member, index| %>
       <tr>
         <td><%= index + 1 %></td>
-        <td><%= member.name.titleize %></td>
+        <td><%= member.full_name.titleize %></td>
         <td><%= member.membership_type %></td>
         <td><%= member.date_of_birth.strftime("%d-%m-%Y") if member.date_of_birth %></td>
         <td><%= member.gender.capitalize %></td>
         <td><%= member.phone %></td>
         <td><%= "#{member.kin_given_name} #{member.kin_surname} (#{member.kin_relationship})" %></td>
-        <td class="actions">
-          <%= link_to "Details", member_path(member), class: "btn btn-info btn-sm" %>
-          <%= link_to "Update", edit_member_path(member), class: "btn btn-warning btn-sm" %>
-          <%= link_to "Delete", member_path(member), method: :delete, data: { confirm: "Are you sure?" }, class: "btn btn-danger btn-sm" %>
-        </td>
       </tr>
     <% end %>
   </tbody>
 </table>
 
-<div class="action-buttons">
+<div style="margin-top: 10px;">
   <%= link_to "Register Member", new_member_path, class: 'btn btn-primary' %>
 </div>
+
+<style>
+  .styled-table {
+    border-collapse: collapse;
+    width: 100%;
+    font-size: 0.85rem;
+    border: 1px solid #ccc;
+  }
+
+  .styled-table th,
+  .styled-table td {
+    border: 1px solid #ccc;
+    padding: 6px 10px;
+    text-align: left;
+  }
+
+  .styled-table thead {
+    background-color: #f0f0f0;
+    font-weight: bold;
+  }
+
+  .styled-table tbody tr:nth-child(even) {
+    background-color: #fafafa;
+  }
+
+  .btn {
+    padding: 4px 8px;
+    font-size: 0.75rem;
+    border-radius: 4px;
+    text-decoration: none;
+  }
+
+  .btn-primary {
+    background-color: #0d6efd;
+    color: white;
+    border: none;
+  }
+</style>
