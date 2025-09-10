@@ -27,6 +27,14 @@ body, h1, h2, h3, h4, h5, h6, p, ul, li, a {
     list-style: none;
     display: flex;
   }
+
+  .nav-links ul {
+    margin-top: 15px;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+  }
   
   .nav-links li {
     margin: 0 15px;

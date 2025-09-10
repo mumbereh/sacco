@@ -55,28 +55,6 @@ ActiveRecord::Schema[7.2].define(version: 2025_06_29_215651) do
     t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
   end
 
-  create_table "general_reports", force: :cascade do |t|
-    t.decimal "total_deposits"
-    t.decimal "total_withdrawals"
-    t.decimal "total_transfers"
-    t.decimal "cleared_loans"
-    t.decimal "uncleared_loans"
-    t.decimal "deposit_balance"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-  end
-
-  create_table "individual_account_reports", force: :cascade do |t|
-    t.bigint "member_id", null: false
-    t.decimal "total_deposits"
-    t.decimal "total_withdrawals"
-    t.decimal "total_transfers"
-    t.decimal "total_loans"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["member_id"], name: "index_individual_account_reports_on_member_id"
-  end
-
   create_table "loan_repayments", force: :cascade do |t|
     t.bigint "loan_id", null: false
     t.bigint "member_id", null: false
@@ -85,8 +63,6 @@ ActiveRecord::Schema[7.2].define(version: 2025_06_29_215651) do
     t.text "note"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.boolean "penalty_applied"
-    t.date "due_date"
     t.index ["loan_id"], name: "index_loan_repayments_on_loan_id"
     t.index ["member_id"], name: "index_loan_repayments_on_member_id"
   end
@@ -108,7 +84,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_06_29_215651) do
   end
 
   create_table "loans", force: :cascade do |t|
-    t.integer "member_id", null: false
+    t.bigint "member_id", null: false
     t.decimal "amount", null: false
     t.decimal "interest_rate", default: "3.0", null: false
     t.string "status", default: "pending", null: false
@@ -127,15 +103,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_06_29_215651) do
     t.string "repayment_status"
     t.boolean "secretary_approved"
     t.boolean "chairperson_approved"
-  end
-
-  create_table "loans_general_reports", force: :cascade do |t|
-    t.string "member_name"
-    t.string "account_number"
-    t.decimal "cleared_loans"
-    t.decimal "uncleared_loans"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.index ["member_id"], name: "index_loans_on_member_id"
   end
 
   create_table "member_reports", force: :cascade do |t|
@@ -182,17 +150,6 @@ ActiveRecord::Schema[7.2].define(version: 2025_06_29_215651) do
     t.index ["email"], name: "index_members_on_email", unique: true
   end
 
-  create_table "reports", force: :cascade do |t|
-    t.string "title"
-    t.text "content"
-    t.string "report_type"
-    t.string "reportable_type", null: false
-    t.bigint "reportable_id", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["reportable_type", "reportable_id"], name: "index_reports_on_reportable"
-  end
-
   create_table "savings_commitments", force: :cascade do |t|
     t.bigint "member_id", null: false
     t.decimal "target_amount"
@@ -226,17 +183,9 @@ ActiveRecord::Schema[7.2].define(version: 2025_06_29_215651) do
     t.index ["recipient_account_id"], name: "index_transactions_on_recipient_account_id"
   end
 
-  create_table "transactions_reports", force: :cascade do |t|
-    t.date "from"
-    t.date "to"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-  end
-
   add_foreign_key "accounts", "members"
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
-  add_foreign_key "individual_account_reports", "members"
   add_foreign_key "loan_repayments", "loans"
   add_foreign_key "loan_repayments", "members"
   add_foreign_key "loan_reports", "loans"

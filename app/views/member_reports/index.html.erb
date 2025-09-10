@@ -1,9 +1,6 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <title>All Member Reports</title>
+
   <style>
-    body {
+    .member-reporting {
       font-family: 'Segoe UI', Tahoma, sans-serif;
       background-color: #f7f9fc;
       color: #333;
@@ -77,9 +74,8 @@
       background-color: #f1f9ff;
     }
   </style>
-</head>
 
-<body>
+<section class="member-reporting">
   <h1 class="mb-4">All Member Reports</h1>
 
   <%= link_to "New Member Report", new_member_report_path, class: "btn btn-primary" %>
@@ -104,5 +100,4 @@
       <% end %>
     </tbody>
   </table>
-</body>
-</html>
+</section>

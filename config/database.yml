@@ -3,7 +3,7 @@ default: &default
   encoding: unicode
   pool: 5
   username: postgres  # Change if you use a different username
-  password: postgres  # Change if you set a different password
+  password: gra  # Change if you set a different password
   host: localhost
 
 development:
